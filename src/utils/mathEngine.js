@@ -531,11 +531,13 @@ export function analyzeVectorField(rawP, rawQ, rawR) {
         dP_dz: nodeToLatex(dP_dz),
         dR_dx: nodeToLatex(dR_dx),
         dQ_dx: nodeToLatex(dQ_dx),
-        dP_dy: nodeToLatex(dP_dy),
-        // Final simplified Curl components
-        curlX: nodeToLatex(curlXNode),
-        curlY: nodeToLatex(curlYNode),
-        curlZ: nodeToLatex(curlZNode)
+        // Final simplified Curl components (safe fallback to '0')
+        curlX: nodeToLatex(curlXNode) || '0',
+        curlY: nodeToLatex(curlYNode) || '0',
+        curlZ: nodeToLatex(curlZNode) || '0',
+        cx: nodeToLatex(curlXNode) || '0',
+        cy: nodeToLatex(curlYNode) || '0',
+        cz: nodeToLatex(curlZNode) || '0'
       },
       evaluateAt: (x, y, z = 1) => {
         const fx = evalSafe3D(compP, x, y, z);

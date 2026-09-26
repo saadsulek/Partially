@@ -265,19 +265,25 @@ export default function CurlSolver({ x0, setX0, y0, setY0 }) {
                     <span className="text-sky-400 font-bold">î-Component // (∂R/∂y − ∂Q/∂z)</span>
                     <span className="text-zinc-200">{evalData.cx.toFixed(3)}</span>
                   </div>
-                  <div className="bg-surface-sunken border border-border-subtle p-2 rounded text-zinc-300">
-                    <MathTex tex={`(\\nabla \\times \\vec{F})_x = \\frac{\\partial}{\\partial y}(${compR}) - \\frac{\\partial}{\\partial z}(${compQ}) = ${curlAnalysis.latex.cx}`} />
+                  <div className="bg-surface-sunken border border-border-subtle p-2.5 rounded text-zinc-300 overflow-x-auto">
+                    <MathTex
+                      tex={`\\frac{\\partial}{\\partial y}\\left[${curlAnalysis.latex.R || compR}\\right] - \\frac{\\partial}{\\partial z}\\left[${curlAnalysis.latex.Q || compQ}\\right] = \\left(${curlAnalysis.latex.dR_dy || '0'}\\right) - \\left(${curlAnalysis.latex.dQ_dz || '0'}\\right) = \\mathbf{${curlAnalysis.latex.curlX || '0'}}`}
+                      block
+                    />
                   </div>
                 </div>
 
                 {/* j-component */}
                 <div className="p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-amber-400 font-bold">ĵ-Component // −(∂R/∂x − ∂P/∂z)</span>
+                    <span className="text-amber-400 font-bold">ĵ-Component // (∂P/∂z − ∂R/∂x)</span>
                     <span className="text-zinc-200">{evalData.cy.toFixed(3)}</span>
                   </div>
-                  <div className="bg-surface-sunken border border-border-subtle p-2 rounded text-zinc-300">
-                    <MathTex tex={`(\\nabla \\times \\vec{F})_y = \\frac{\\partial}{\\partial z}(${compP}) - \\frac{\\partial}{\\partial x}(${compR}) = ${curlAnalysis.latex.cy}`} />
+                  <div className="bg-surface-sunken border border-border-subtle p-2.5 rounded text-zinc-300 overflow-x-auto">
+                    <MathTex
+                      tex={`\\frac{\\partial}{\\partial z}\\left[${curlAnalysis.latex.P || compP}\\right] - \\frac{\\partial}{\\partial x}\\left[${curlAnalysis.latex.R || compR}\\right] = \\left(${curlAnalysis.latex.dP_dz || '0'}\\right) - \\left(${curlAnalysis.latex.dR_dx || '0'}\\right) = \\mathbf{${curlAnalysis.latex.curlY || '0'}}`}
+                      block
+                    />
                   </div>
                 </div>
 
@@ -287,8 +293,11 @@ export default function CurlSolver({ x0, setX0, y0, setY0 }) {
                     <span className="text-zinc-300 font-bold">k̂-Component // (∂Q/∂x − ∂P/∂y)</span>
                     <span className="text-zinc-200">{evalData.cz.toFixed(3)}</span>
                   </div>
-                  <div className="bg-surface-sunken border border-border-subtle p-2 rounded text-zinc-300">
-                    <MathTex tex={`(\\nabla \\times \\vec{F})_z = \\frac{\\partial}{\\partial x}(${compQ}) - \\frac{\\partial}{\\partial y}(${compP}) = ${curlAnalysis.latex.cz}`} />
+                  <div className="bg-surface-sunken border border-border-subtle p-2.5 rounded text-zinc-300 overflow-x-auto">
+                    <MathTex
+                      tex={`\\frac{\\partial}{\\partial x}\\left[${curlAnalysis.latex.Q || compQ}\\right] - \\frac{\\partial}{\\partial y}\\left[${curlAnalysis.latex.P || compP}\\right] = \\left(${curlAnalysis.latex.dQ_dx || '0'}\\right) - \\left(${curlAnalysis.latex.dP_dy || '0'}\\right) = \\mathbf{${curlAnalysis.latex.curlZ || '0'}}`}
+                      block
+                    />
                   </div>
                 </div>
               </div>
@@ -308,7 +317,10 @@ export default function CurlSolver({ x0, setX0, y0, setY0 }) {
               </div>
 
               <div className="bg-surface-sunken border border-border-subtle p-3 rounded overflow-x-auto font-mono text-zinc-100">
-                <MathTex tex={`\\nabla \\times \\vec{F} = \\langle ${curlAnalysis.latex.cx}, \\; ${curlAnalysis.latex.cy}, \\; ${curlAnalysis.latex.cz} \\rangle`} block />
+                <MathTex
+                  tex={`\\nabla \\times \\vec{F} = \\left\\langle ${curlAnalysis.latex.curlX || '0'},\\; ${curlAnalysis.latex.curlY || '0'},\\; ${curlAnalysis.latex.curlZ || '0'} \\right\\rangle = \\left(${curlAnalysis.latex.curlX || '0'}\\right)\\hat{i} + \\left(${curlAnalysis.latex.curlY || '0'}\\right)\\hat{j} + \\left(${curlAnalysis.latex.curlZ || '0'}\\right)\\hat{k}`}
+                  block
+                />
               </div>
             </div>
           </div>
