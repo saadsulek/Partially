@@ -8,60 +8,61 @@ export default {
   theme: {
     extend: {
       colors: {
-        "on-error": "#690005",
-        "error": "#ff8577",
-        "surface-dim": "#0a100e",
-        "surface-container-low": "#111b18",
-        "on-primary-container": "#00442c",
-        "outline": "#6d857d",
-        "outline-variant": "#23352f",
-        "tertiary-container": "#4a3b10",
-        "secondary-container": "#182b24",
-        "surface-container-highest": "#24352f",
-        "primary-fixed-dim": "#75daa8",
-        "error-container": "#520d11",
-        "on-background": "#e2ece9",
-        "on-tertiary": "#2e2100",
-        "secondary-fixed-dim": "#85d7ad",
-        "on-secondary-fixed-variant": "#005236",
-        "on-primary-fixed": "#002113",
-        "on-secondary": "#003824",
-        "on-tertiary-fixed": "#251a00",
-        "background": "#0d1513",
-        "surface-container-high": "#1b2824",
-        "surface": "#0f1715",
-        "on-surface": "#e2ece9",
-        "primary": "#52b788",
-        "on-surface-variant": "#9cb3ab",
-        "on-tertiary-container": "#ffd566",
-        "on-secondary-fixed": "#002113",
-        "on-error-container": "#ffdad6",
-        "surface-bright": "#1a2522",
-        "surface-tint": "#75daa8",
-        "secondary": "#74c69d",
-        "surface-variant": "#1c2724",
-        "inverse-primary": "#006c48",
-        "primary-container": "#1d4432",
-        "surface-container": "#15221f",
-        "tertiary-fixed": "#ffd778",
-        "tertiary": "#e7c268",
-        "on-primary": "#003823",
-        "surface-container-lowest": "#080e0c",
-        "on-secondary-container": "#8fe2b7",
-        "inverse-surface": "#e2ece9",
-        "secondary-fixed": "#a0f4c8",
-        "on-tertiary-fixed-variant": "#5a4400",
-        "primary-fixed": "#92f7c3",
-        "inverse-on-surface": "#0d1513",
-        "on-primary-fixed-variant": "#005235",
-        "tertiary-fixed-dim": "#d4b35e"
+        // Disciplined Swiss Neutral Palette (Cool Zinc)
+        canvas: "#09090b", // Deep zinc base
+        surface: {
+          DEFAULT: "#121215", // Primary panel surface
+          raised: "#18181b",  // Elevated controls and inputs
+          overlay: "#202024", // Floating menus and modals
+          sunken: "#0d0d10",  // Recessed wells and code blocks
+        },
+        border: {
+          subtle: "#1f1f23",
+          DEFAULT: "#27272a", // Standard 1px structural hairline
+          strong: "#3f3f46",  // Interactive or emphasized borders
+        },
+        // Single Intentional Brand Accent: Precision Cobalt
+        brand: {
+          DEFAULT: "#2563eb",
+          hover: "#1d4ed8",
+          subtle: "rgba(37, 99, 235, 0.12)",
+          border: "rgba(37, 99, 235, 0.4)",
+          text: "#60a5fa",
+        },
+        // Strictly Semantic Variable Accents (for Calculus X / Y differentiation)
+        variable: {
+          x: "#38bdf8", // Cool slate cyan for x-axis / ∂f/∂x
+          "x-bg": "rgba(56, 189, 248, 0.08)",
+          "x-border": "rgba(56, 189, 248, 0.3)",
+          y: "#f59e0b", // Precision amber for y-axis / ∂f/∂y
+          "y-bg": "rgba(245, 158, 11, 0.08)",
+          "y-border": "rgba(245, 158, 11, 0.3)",
+          z: "#a1a1aa", // Neutral slate for z-height
+        },
+        // Functional Status Colors
+        status: {
+          success: "#10b981",
+          warning: "#f59e0b",
+          error: "#ef4444",
+          info: "#3b82f6",
+        },
       },
       fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        serif: ['Literata', 'Georgia', 'serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', 'monospace'],
         headline: ['Literata', 'Georgia', 'serif'],
-        display: ['Literata', 'Georgia', 'serif'],
-        body: ['Nunito Sans', 'system-ui', 'sans-serif'],
-        label: ['Nunito Sans', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        label: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
+      boxShadow: {
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.35)',
+        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4)',
+        'panel': '0 4px 12px 0 rgba(0, 0, 0, 0.5)',
+      },
+      letterSpacing: {
+        'micro': '0.12em',
+        'tightest': '-0.03em',
       },
     },
   },

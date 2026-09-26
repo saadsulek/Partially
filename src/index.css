@@ -2,43 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  display: inline-block;
-  vertical-align: middle;
-  line-height: 1;
+@layer base {
+  body {
+    @apply bg-canvas text-zinc-200 font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Crisp 1px hairline divider utilities */
+  hr {
+    @apply border-border;
+  }
 }
 
-/* Late-night subtle custom scrollbar from code.html */
+/* Utilitarian, precision scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d1513;
+  background: #09090b;
 }
 ::-webkit-scrollbar-thumb {
-  background: #23352f;
-  border-radius: 9999px;
+  background: #27272a;
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #52b788;
+  background: #3f3f46;
 }
 
-/* Custom Range Sliders matching Spectral Obsidian Mint & Gold */
-input[type="range"].obsidian-slider-mint {
-  accent-color: #52b788;
-}
-input[type="range"].obsidian-slider-gold {
-  accent-color: #e7c268;
+/* Precision Engineering Range Sliders (Hairline track, discrete thumb) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 18px;
 }
 
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: #27272a;
+  border-radius: 1px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -6.5px;
+  height: 16px;
+  width: 16px;
+  border-radius: 2px;
+  background: #f4f4f5;
+  border: 1px solid #27272a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+input[type="range"].slider-x::-webkit-slider-runnable-track {
+  background: #1e293b;
+}
+input[type="range"].slider-x::-webkit-slider-thumb {
+  background: #38bdf8;
+  border-color: #0284c7;
+}
+
+input[type="range"].slider-y::-webkit-slider-runnable-track {
+  background: #2a1f0d;
+}
+input[type="range"].slider-y::-webkit-slider-thumb {
+  background: #f59e0b;
+  border-color: #d97706;
+}
+
+/* Crisp KaTeX Math Formatting */
 .katex-display {
-  margin: 0.4em 0 !important;
+  margin: 0.35em 0 !important;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.15rem 0;
+  padding: 0.1rem 0;
 }
 .katex {
-  font-size: 1.03em;
+  font-size: 1.02em;
+  text-rendering: optimizeLegibility;
 }

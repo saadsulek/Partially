@@ -6,7 +6,7 @@ const QUESTION_BANK = [
     id: 'const-1',
     category: '1. Identifying Constant Terms',
     prompt: 'When computing the first-order partial derivative with respect to x:',
-    formulaTex: '\\frac{\\partial}{\\partial {\\textcolor{#52b788}{x}}}\\Big[ 4x^3 y^2 - 7y^4 \\cos(y) + 9x - e^{2y} \\Big]',
+    formulaTex: '\\frac{\\partial}{\\partial {\\textcolor{#38bdf8}{x}}}\\Big[ 4x^3 y^2 - 7y^4 \\cos(y) + 9x - e^{2y} \\Big]',
     questionText: 'Which terms behave as pure constants (and therefore differentiate immediately to 0)?',
     options: [
       { id: 'a', tex: '-7y^4 \\cos(y) \\text{ and } -e^{2y}' },
@@ -19,7 +19,7 @@ const QUESTION_BANK = [
     steps: [
       {
         title: 'Step 1: Identify Active vs. Constant Variables',
-        tex: '\\text{Active: } {\\textcolor{#52b788}{x}} \\quad | \\quad \\text{Held constant: } {\\textcolor{#e7c268}{y}}'
+        tex: '\\text{Active: } {\\textcolor{#38bdf8}{x}} \\quad | \\quad \\text{Held constant: } {\\textcolor{#f59e0b}{y}}'
       },
       {
         title: 'Step 2: Apply Constant Rule to Pure-y Terms',
@@ -182,15 +182,21 @@ export default function QuizModule() {
     : [{ q: questions[currentIdx], idx: currentIdx }];
 
   return (
-    <section className="space-y-6">
-      {/* Header & Question Stepper Bar */}
-      <div className="bg-[#111b18] border border-[#23352f] rounded-xl p-5 shadow-lg shadow-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <section className="space-y-4">
+      {/* Header & Stepper Toolbar */}
+      <div className="border border-border bg-surface p-4 rounded-md shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-wrap">
-          <h2 className="font-headline text-xl font-bold text-[#e2ece9]">
-            Practice Modules • Self-Quiz
-          </h2>
+          <div>
+            <div className="text-[10px] font-mono tracking-wider uppercase text-zinc-500">
+              MODULE 05 // DIAGNOSTIC ASSESSMENT
+            </div>
+            <h2 className="font-serif text-lg font-bold text-zinc-100 tracking-tight mt-0.5">
+              Multivariable Calculus Verification Quiz
+            </h2>
+          </div>
 
-          <div className="flex items-center gap-1.5">
+          {/* Stepper buttons */}
+          <div className="flex items-center gap-1 bg-surface-sunken p-1 border border-border rounded">
             {questions.map((q, idx) => {
               const isDone = !!submittedIds[q.id];
               const isRight = isDone && selectedAnswers[q.id] === q.correctId;
@@ -203,45 +209,42 @@ export default function QuizModule() {
                     setViewAll(false);
                     setCurrentIdx(idx);
                   }}
-                  className={`w-8 h-8 rounded-lg font-mono text-xs font-bold border transition-all ${
+                  className={`w-7 h-7 rounded text-xs font-mono font-bold transition-colors ${
                     isCurrent
-                      ? 'bg-primary text-[#003823] border-primary shadow-[0_0_10px_rgba(82,183,136,0.3)]'
+                      ? 'bg-brand text-white'
                       : isDone
                       ? isRight
-                        ? 'bg-[#182b24] border-primary/40 text-primary'
-                        : 'bg-[#520d11] border-[#ff8577]/40 text-[#ff8577]'
-                      : 'bg-[#15221f] border-[#23352f] text-[#9cb3ab]'
+                        ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-900/50'
+                        : 'bg-red-950/60 text-red-400 border border-red-900/50'
+                      : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
-                  {idx + 1}
+                  {String(idx + 1).padStart(2, '0')}
                 </button>
               );
             })}
 
             <button
               onClick={() => setViewAll((v) => !v)}
-              className={`ml-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                viewAll
-                  ? 'bg-[#182b24] border-primary/40 text-primary font-semibold'
-                  : 'bg-[#15221f] border-[#23352f] text-[#9cb3ab]'
-              }`}
+              className="ml-1 px-2.5 py-1 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 rounded border border-border"
             >
-              {viewAll ? 'Single View' : 'Show All 5'}
+              {viewAll ? 'PAGED' : 'ALL 5'}
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-bold text-[#9cb3ab] px-3 py-1.5 rounded-lg bg-[#15221f] border border-[#23352f]">
-            Score: <span className="text-primary">{totalCorrect}/{questions.length}</span> ({totalSubmitted} answered)
-          </span>
+        {/* Score Readout & Regenerate Button */}
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 font-mono text-xs text-zinc-300 bg-surface-sunken border border-border rounded">
+            SCORE: <span className="text-zinc-100 font-bold">{totalCorrect}/{questions.length}</span>
+            <span className="text-zinc-500 ml-1">({totalSubmitted} DONE)</span>
+          </div>
 
           <button
             onClick={regenerateQuiz}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-[#003823] hover:bg-[#74c69d] text-xs font-bold shadow-[0_0_10px_rgba(82,183,136,0.25)] transition-colors"
+            className="px-3 py-1 font-mono text-xs font-semibold bg-surface-raised hover:bg-zinc-800 text-zinc-200 border border-border rounded transition-colors"
           >
-            <span className="material-symbols-outlined text-base">refresh</span>
-            New Set
+            NEW SET
           </button>
         </div>
       </div>
@@ -257,59 +260,58 @@ export default function QuizModule() {
           return (
             <div
               key={q.id}
-              className="bg-[#111b18] rounded-xl border border-[#23352f] p-5 shadow-lg shadow-black/20 space-y-4"
+              className="border border-border bg-surface rounded-md shadow-xs p-4 sm:p-5 space-y-4"
             >
-              <div className="flex items-center justify-between gap-2">
+              {/* Question Header */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border/80">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded bg-[#182b24] border border-primary/30 font-mono text-xs font-bold text-primary">
-                    Problem {idx + 1} of {questions.length}
-                  </span>
-                  <span className="text-xs font-medium text-[#9cb3ab]">
-                    {q.category}
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                    PROBLEM {String(idx + 1).padStart(2, '0')} // {q.category}
                   </span>
                 </div>
 
                 <button
                   onClick={() => setVisibleHints((p) => ({ ...p, [q.id]: !p[q.id] }))}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#4a3b10]/50 text-tertiary border border-tertiary/30"
+                  className="px-2 py-0.5 text-[10px] font-mono text-amber-400 border border-amber-900/50 bg-amber-950/20 rounded hover:bg-amber-950/40 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-sm">lightbulb</span>
-                  {showHint ? 'Hide Hint' : 'Hint'}
+                  {showHint ? '[HIDE HINT]' : '[HINT]'}
                 </button>
               </div>
 
-              <div className="space-y-2.5">
-                <p className="text-xs text-[#9cb3ab]">{q.prompt}</p>
-                <div className="p-4 rounded-lg bg-[#15221f] border border-[#23352f] overflow-x-auto">
+              {/* Problem Content */}
+              <div className="space-y-2">
+                <p className="text-xs text-zinc-400 font-mono">{q.prompt}</p>
+                <div className="p-3 rounded bg-surface-sunken border border-border-subtle overflow-x-auto text-zinc-100">
                   <MathTex tex={q.formulaTex} block />
                 </div>
-                <p className="text-sm font-semibold text-[#e2ece9]">
+                <p className="text-sm font-semibold text-zinc-200">
                   {q.questionText}
                 </p>
               </div>
 
+              {/* Hint Box */}
               {showHint && (
-                <div className="p-3 rounded-lg bg-[#4a3b10]/30 border border-tertiary/30 text-xs text-tertiary">
-                  <strong>Hint:</strong> {q.hint}
+                <div className="p-2.5 rounded bg-surface-sunken border border-amber-900/40 text-xs font-mono text-amber-300">
+                  <strong className="text-amber-400">HINT:</strong> {q.hint}
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Multiple-Choice Options */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                 {q.options.map((opt) => {
                   const isSelected = userChoice === opt.id;
                   const isOptionCorrect = opt.id === q.correctId;
 
-                  let style =
-                    'border-[#23352f] bg-[#15221f] hover:border-primary/40';
+                  let borderStyle = 'border-border bg-surface-sunken hover:border-zinc-700';
                   if (isSelected && !isSubmitted) {
-                    style = 'border-primary bg-[#182b24]';
+                    borderStyle = 'border-brand bg-blue-950/30 ring-1 ring-brand text-zinc-100';
                   } else if (isSubmitted) {
                     if (isOptionCorrect) {
-                      style = 'border-primary bg-[#182b24]';
+                      borderStyle = 'border-emerald-600 bg-emerald-950/30 text-emerald-300';
                     } else if (isSelected) {
-                      style = 'border-[#ff8577] bg-[#520d11]/40';
+                      borderStyle = 'border-red-600 bg-red-950/30 text-red-300';
                     } else {
-                      style = 'border-[#23352f] opacity-50';
+                      borderStyle = 'border-border opacity-40';
                     }
                   }
 
@@ -320,93 +322,78 @@ export default function QuizModule() {
                         !isSubmitted && setSelectedAnswers((p) => ({ ...p, [q.id]: opt.id }))
                       }
                       disabled={isSubmitted}
-                      className={`p-3.5 rounded-lg border text-left transition-all flex items-center justify-between gap-3 ${style}`}
+                      className={`p-3 rounded border text-left font-mono transition-colors flex items-start gap-2.5 ${borderStyle}`}
                     >
-                      <div className="flex items-center gap-2.5 overflow-x-auto">
-                        <span className="w-6 h-6 rounded-full border border-[#6d857d] text-xs font-mono font-bold flex items-center justify-center shrink-0 uppercase text-[#e2ece9]">
-                          {opt.id}
-                        </span>
-                        <span className="text-sm text-[#e2ece9]">
-                          <MathTex tex={opt.tex} />
-                        </span>
+                      <span className="font-bold text-xs text-zinc-400 uppercase shrink-0 pt-0.5">
+                        [{opt.id.toUpperCase()}]
+                      </span>
+                      <div className="overflow-x-auto text-xs text-zinc-200 flex-1">
+                        <MathTex tex={opt.tex} />
                       </div>
-
-                      {isSubmitted && isOptionCorrect && (
-                        <span className="material-symbols-outlined text-primary">check_circle</span>
-                      )}
-                      {isSubmitted && isSelected && !isOptionCorrect && (
-                        <span className="material-symbols-outlined text-[#ff8577]">cancel</span>
-                      )}
                     </button>
                   );
                 })}
               </div>
 
-              <div className="flex items-center justify-between pt-2">
-                {!viewAll ? (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))}
-                      disabled={currentIdx === 0}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#15221f] border border-[#23352f] text-[#9cb3ab] hover:text-[#e2ece9] disabled:opacity-40"
+              {/* Action / Validation Strip */}
+              <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  {isSubmitted && (
+                    <span
+                      className={`text-xs font-mono font-bold ${
+                        isCorrect ? 'text-emerald-400' : 'text-red-400'
+                      }`}
                     >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setCurrentIdx((i) => Math.min(questions.length - 1, i + 1))}
-                      disabled={currentIdx === questions.length - 1}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#15221f] border border-[#23352f] text-[#9cb3ab] hover:text-[#e2ece9] disabled:opacity-40"
-                    >
-                      Next
-                    </button>
-                  </div>
-                ) : (
-                  <div />
-                )}
+                      {isCorrect ? '✓ CORRECT RESOLUTION' : '✗ INCORRECT SPECIFICATION'}
+                    </span>
+                  )}
+                </div>
 
-                {!isSubmitted && (
-                  <button
-                    onClick={() =>
-                      userChoice && setSubmittedIds((p) => ({ ...p, [q.id]: true }))
-                    }
-                    disabled={!userChoice}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                      userChoice
-                        ? 'bg-primary hover:bg-[#74c69d] text-[#003823] shadow-[0_0_10px_rgba(82,183,136,0.25)]'
-                        : 'bg-[#15221f] text-[#6d857d] cursor-not-allowed'
-                    }`}
-                  >
-                    Submit Answer
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {!isSubmitted ? (
+                    <button
+                      onClick={() => {
+                        if (userChoice) {
+                          setSubmittedIds((p) => ({ ...p, [q.id]: true }));
+                        }
+                      }}
+                      disabled={!userChoice}
+                      className={`px-4 py-1.5 text-xs font-mono font-semibold rounded transition-colors ${
+                        userChoice
+                          ? 'bg-brand text-white hover:bg-brand-hover'
+                          : 'bg-surface-sunken text-zinc-600 border border-border cursor-not-allowed'
+                      }`}
+                    >
+                      VERIFY ANSWER
+                    </button>
+                  ) : (
+                    !viewAll &&
+                    currentIdx < questions.length - 1 && (
+                      <button
+                        onClick={() => setCurrentIdx((i) => i + 1)}
+                        className="px-4 py-1.5 text-xs font-mono font-semibold bg-surface-raised hover:bg-zinc-800 text-zinc-200 border border-border rounded transition-colors"
+                      >
+                        NEXT PROBLEM →
+                      </button>
+                    )
+                  )}
+                </div>
               </div>
 
+              {/* Derivation Steps (Upon Submission) */}
               {isSubmitted && (
-                <div className="pt-3 border-t border-[#23352f] space-y-2.5">
-                  <div
-                    className={`text-xs font-semibold flex items-center gap-1.5 ${
-                      isCorrect ? 'text-primary' : 'text-[#ff8577]'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-base">
-                      {isCorrect ? 'check_circle' : 'cancel'}
-                    </span>
-                    {isCorrect
-                      ? 'Correct!'
-                      : `Incorrect — Option (${q.correctId.toUpperCase()}) is correct.`}
+                <div className="mt-3 p-3.5 bg-surface-sunken border border-border rounded space-y-2.5 font-mono text-xs">
+                  <div className="text-[10px] uppercase tracking-wider text-zinc-500">
+                    FORMAL DERIVATION
                   </div>
-
-                  <div className="grid grid-cols-1 gap-2">
-                    {q.steps.map((st, sIdx) => (
-                      <div
-                        key={sIdx}
-                        className="p-3 rounded-lg bg-[#15221f] border border-[#23352f] text-xs"
-                      >
-                        <div className="font-semibold text-primary mb-1">{st.title}</div>
+                  {q.steps.map((st, sIdx) => (
+                    <div key={sIdx} className="space-y-1">
+                      <span className="text-[11px] text-zinc-400 font-semibold">{st.title}</span>
+                      <div className="text-zinc-200 overflow-x-auto p-2 bg-surface rounded border border-border-subtle">
                         <MathTex tex={st.tex} block />
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

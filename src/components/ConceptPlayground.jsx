@@ -10,7 +10,6 @@ export default function ConceptPlayground({
 }) {
   const [dirAngleDeg, setDirAngleDeg] = useState(45);
   const canvasRef = useRef(null);
-  const isDraggingPointRef = useRef(false);
 
   const evalVals = useMemo(() => {
     if (!analysis || !analysis.isValid) {
@@ -44,7 +43,7 @@ export default function ConceptPlayground({
     };
   }, [evalVals, dirAngleDeg]);
 
-  // 1:1 Square Contour Map Canvas in Spectral Obsidian Theme
+  // 1:1 Square Contour Map Canvas in Swiss Precision Palette
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !analysis || !analysis.isValid) return;
@@ -85,10 +84,10 @@ export default function ConceptPlayground({
         const z = grid[gj * (N + 1) + gi];
         const t = (z - minZ) / rangeZ;
 
-        // Spectral Obsidian color ramp (#08100e -> #183a2c -> #2d6a4f)
-        const r = Math.round(8 + t * 38);
-        const g = Math.round(16 + t * 105);
-        const b = Math.round(14 + t * 72);
+        // Technical elevation ramp (Zinc-950 -> Deep Slate Blue -> Neutral Slate)
+        const r = Math.round(9 + t * 30);
+        const g = Math.round(11 + t * 45);
+        const b = Math.round(18 + t * 80);
 
         const idx = (py * S + px) * 4;
         data[idx] = r;
@@ -99,9 +98,10 @@ export default function ConceptPlayground({
     }
     ctx.putImageData(imgData, 0, 0);
 
+    // Discrete Isolines (Contour lines)
     const numContours = 12;
-    ctx.lineWidth = 1.1;
-    ctx.strokeStyle = 'rgba(156, 179, 171, 0.28)';
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(212, 212, 216, 0.22)';
 
     for (let c = 1; c < numContours; c++) {
       const level = minZ + (rangeZ * c) / numContours;
@@ -144,7 +144,7 @@ export default function ConceptPlayground({
     const cx = ((x0 + 3) / 6) * S;
     const cy = ((3 - y0) / 6) * S;
 
-    const drawVector = (vx, vy, color, label, lineWidth = 2.5) => {
+    const drawVector = (vx, vy, color, label, lineWidth = 2) => {
       const len = Math.hypot(vx, vy);
       if (len < 2) return;
       const ex = cx + vx;
@@ -160,7 +160,7 @@ export default function ConceptPlayground({
       ctx.stroke();
 
       const angle = Math.atan2(ey - cy, ex - cx);
-      const headLen = 8;
+      const headLen = 7;
       ctx.beginPath();
       ctx.moveTo(ex, ey);
       ctx.lineTo(ex - headLen * Math.cos(angle - Math.PI / 6), ey - headLen * Math.sin(angle - Math.PI / 6));
@@ -169,28 +169,29 @@ export default function ConceptPlayground({
       ctx.fill();
 
       if (label) {
-        ctx.font = 'bold 11px JetBrains Mono, monospace';
-        ctx.fillText(label, ex + 7 * Math.cos(angle), ey + 7 * Math.sin(angle));
+        ctx.font = '600 10px JetBrains Mono, monospace';
+        ctx.fillText(label, ex + 6 * Math.cos(angle), ey + 6 * Math.sin(angle));
       }
       ctx.restore();
     };
 
     const { fx, fy, gradMag, ux, uy } = gradientData;
-    const vecScale = gradMag > 0.001 ? Math.min(72, Math.max(26, gradMag * 18)) / gradMag : 0;
+    const vecScale = gradMag > 0.001 ? Math.min(68, Math.max(24, gradMag * 16)) / gradMag : 0;
     const pxFx = fx * vecScale;
     const pxFy = fy * vecScale;
 
-    drawVector(pxFx, 0, '#52b788', 'fx î', 2.4);
-    drawVector(0, pxFy, '#e7c268', 'fy ĵ', 2.4);
-    drawVector(pxFx, pxFy, '#4ade80', '∇f', 3.0);
-    drawVector(ux * 52, uy * 52, '#e2ece9', 'û', 2.2);
+    drawVector(pxFx, 0, '#38bdf8', 'f_x î', 1.8);
+    drawVector(0, pxFy, '#f59e0b', 'f_y ĵ', 1.8);
+    drawVector(pxFx, pxFy, '#2563eb', '∇f', 2.6);
+    drawVector(ux * 48, uy * 48, '#f4f4f5', 'û', 1.8);
 
+    // Crosshair at evaluation point P0
     ctx.beginPath();
-    ctx.arc(cx, cy, 5.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#52b788';
+    ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#f4f4f5';
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#0d1513';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#09090b';
     ctx.stroke();
   }, [analysis, x0, y0, gradientData]);
 
@@ -198,180 +199,146 @@ export default function ConceptPlayground({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const relX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const relY = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-    setX0(Number((-3 + relX * 6).toFixed(2)));
-    setY0(Number((3 - relY * 6).toFixed(2)));
+    const rx = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const ry = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    setX0(Number((-3 + rx * 6).toFixed(2)));
+    setY0(Number((3 - ry * 6).toFixed(2)));
   };
 
+  const diffClairaut = Math.abs(evalVals.fxy - evalVals.fyx);
+
   return (
-    <section className="space-y-6">
-      {/* 1. Clairaut's Theorem Side-by-Side Comparison */}
-      <div className="bg-[#111b18] rounded-xl border border-[#23352f] p-5 shadow-lg shadow-black/20 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#23352f]">
-          <div>
-            <h2 className="font-headline text-xl font-bold text-[#e2ece9]">
-              Clairaut&apos;s Theorem Explorer (<MathTex tex="f_{xy} = f_{yx}" />)
-            </h2>
-            <p className="text-xs text-[#9cb3ab] mt-0.5">
-              Side-by-side verification that mixed partial derivatives commute for smooth <MathTex tex="C^2" /> surfaces.
-            </p>
-          </div>
-
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#182b24] border border-primary/30 text-primary text-xs font-mono font-bold shrink-0">
-            fₓᵧ({x0.toFixed(1)}, {y0.toFixed(1)}) = fᵧₓ({x0.toFixed(1)}, {y0.toFixed(1)}) = {evalVals.fxy.toFixed(3)}
-          </div>
+    <section className="space-y-4">
+      {/* Header Bar */}
+      <div className="border border-border bg-surface p-4 rounded-md shadow-xs space-y-1">
+        <div className="text-[10px] font-mono tracking-wider uppercase text-zinc-500">
+          MODULE 04 // THEORETICAL FOUNDATIONS &amp; TOPOGRAPHY
         </div>
-
-        {analysis.isValid && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-primary/30 bg-[#15221f] p-4 space-y-3">
-              <div className="flex items-center justify-between text-xs font-semibold text-primary">
-                <span>Path A: ∂/∂x first, then ∂/∂y</span>
-                <MathTex tex="f_{xy} = \frac{\partial}{\partial y}\left(\frac{\partial f}{\partial x}\right)" />
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#0d1513] border border-[#23352f] text-xs space-y-1">
-                <div className="text-[#6d857d] font-mono">1. First partial fₓ:</div>
-                <div className="overflow-x-auto">
-                  <MathTex tex={`f_x = ${analysis.latex.fx}`} block />
-                </div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#0d1513] border border-primary/30 text-xs space-y-1">
-                <div className="text-primary font-mono">2. Mixed partial fₓᵧ:</div>
-                <div className="overflow-x-auto">
-                  <MathTex tex={`f_{xy} = ${analysis.latex.fxy}`} block />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-tertiary/30 bg-[#15221f] p-4 space-y-3">
-              <div className="flex items-center justify-between text-xs font-semibold text-tertiary">
-                <span>Path B: ∂/∂y first, then ∂/∂x</span>
-                <MathTex tex="f_{yx} = \frac{\partial}{\partial x}\left(\frac{\partial f}{\partial y}\right)" />
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#0d1513] border border-[#23352f] text-xs space-y-1">
-                <div className="text-[#6d857d] font-mono">1. First partial fᵧ:</div>
-                <div className="overflow-x-auto">
-                  <MathTex tex={`f_y = ${analysis.latex.fy}`} block />
-                </div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#0d1513] border border-tertiary/30 text-xs space-y-1">
-                <div className="text-tertiary font-mono">2. Mixed partial fᵧₓ:</div>
-                <div className="overflow-x-auto">
-                  <MathTex tex={`f_{yx} = ${analysis.latex.fyx}`} block />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <h1 className="font-serif text-lg font-bold text-zinc-100 tracking-tight">
+          Clairaut’s Symmetry Theorem &amp; 2D Gradient Topography
+        </h1>
+        <p className="text-xs text-zinc-400">
+          Verification of mixed partial derivative equality <MathTex tex="f_{xy} = f_{yx}" /> on C² functions, alongside gradient steepest ascent <MathTex tex="\nabla f" /> on 2D contour lines.
+        </p>
       </div>
 
-      {/* 2. Directional Derivative & Gradient 2D Contour Explorer */}
-      <div className="bg-[#111b18] rounded-xl border border-[#23352f] p-5 shadow-lg shadow-black/20">
-        <div className="pb-4 mb-4 border-b border-[#23352f]">
-          <h2 className="font-headline text-xl font-bold text-[#e2ece9]">
-            Gradient Vector (<MathTex tex="\nabla f" />) &amp; 2D Contour Map
-          </h2>
-          <p className="text-xs text-[#9cb3ab] mt-0.5">
-            Click or drag on the square contour map to move <MathTex tex="(x_0, y_0)" />. Notice that <MathTex tex="\nabla f = \langle f_x, f_y \rangle" /> is always orthogonal to the contour lines.
-          </p>
-        </div>
+      {/* Main Dual-Pane Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
+        {/* Left Column: Clairaut Verifier & Directional Derivative (7 cols) */}
+        <div className="xl:col-span-7 space-y-4">
+          {/* Table: Clairaut Verification Ledger */}
+          <div className="border border-border bg-surface rounded-md shadow-xs overflow-hidden">
+            <div className="px-4 py-2 border-b border-border bg-surface-sunken flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              <span>CLAIRAUT'S THEOREM // SYMMETRIC MIXED PARTIALS</span>
+              <span className="text-emerald-400">Δ &lt; 10⁻¹²</span>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          <div className="lg:col-span-5 flex flex-col items-center">
-            <div className="w-full max-w-[360px] rounded-xl border border-[#23352f] bg-[#08100e] overflow-hidden shadow-md">
-              <div className="px-3 py-2 bg-[#15221f] border-b border-[#23352f] flex items-center justify-between text-[11px] font-mono text-[#9cb3ab]">
-                <span>Drag Point ({x0.toFixed(2)}, {y0.toFixed(2)})</span>
-                <span className="text-primary font-bold">∇f ⊥ Contours</span>
+            <div className="p-4 space-y-3 font-mono text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Order 1 */}
+                <div className="border border-border bg-surface-sunken p-3 rounded space-y-2">
+                  <div className="text-zinc-400 text-[11px]">
+                    ORDER 1: <span className="text-sky-400 font-semibold">x THEN y</span>
+                  </div>
+                  <div className="text-zinc-200 overflow-x-auto">
+                    <MathTex tex={`\\frac{\\partial^2 f}{\\partial y \\partial x} = ${analysis.isValid ? analysis.latex.fxy : '0'}`} />
+                  </div>
+                  <div className="text-[11px] text-zinc-500">
+                    Evaluated at P₀: <strong className="text-zinc-200">{evalVals.fxy.toFixed(4)}</strong>
+                  </div>
+                </div>
+
+                {/* Order 2 */}
+                <div className="border border-border bg-surface-sunken p-3 rounded space-y-2">
+                  <div className="text-zinc-400 text-[11px]">
+                    ORDER 2: <span className="text-amber-400 font-semibold">y THEN x</span>
+                  </div>
+                  <div className="text-zinc-200 overflow-x-auto">
+                    <MathTex tex={`\\frac{\\partial^2 f}{\\partial x \\partial y} = ${analysis.isValid ? analysis.latex.fyx : '0'}`} />
+                  </div>
+                  <div className="text-[11px] text-zinc-500">
+                    Evaluated at P₀: <strong className="text-zinc-200">{evalVals.fyx.toFixed(4)}</strong>
+                  </div>
+                </div>
               </div>
 
-              <canvas
-                ref={canvasRef}
-                width={400}
-                height={400}
-                onPointerDown={(e) => {
-                  isDraggingPointRef.current = true;
-                  updatePointFromCanvasEvent(e);
-                }}
-                onPointerMove={(e) => {
-                  if (isDraggingPointRef.current) updatePointFromCanvasEvent(e);
-                }}
-                onPointerUp={() => {
-                  isDraggingPointRef.current = false;
-                }}
-                onPointerLeave={() => {
-                  isDraggingPointRef.current = false;
-                }}
-                className="w-full aspect-square cursor-crosshair touch-none block"
-              />
+              {/* Equality Status Banner */}
+              <div className="p-2.5 rounded border border-emerald-900/60 bg-emerald-950/30 text-emerald-400 flex items-center justify-between text-xs">
+                <span>✓ f_xy(P₀) ≡ f_yx(P₀) : Difference Δ = {diffClairaut.toExponential(2)}</span>
+                <span className="text-[10px] uppercase font-bold">C² Continuous</span>
+              </div>
             </div>
           </div>
 
-          <div className="lg:col-span-7 space-y-4">
-            <div className="p-4 rounded-xl border border-[#23352f] bg-[#15221f] space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-[#e2ece9]">
-                  Direction Angle <MathTex tex="\theta" /> for Unit Vector <MathTex tex="\vec{u} = \langle \cos\theta, \sin\theta \rangle" />
-                </span>
-                <span className="font-mono font-bold text-primary">θ = {dirAngleDeg.toFixed(0)}°</span>
-              </div>
-
-              <input
-                type="range"
-                min="0"
-                max="360"
-                step="1"
-                value={dirAngleDeg}
-                onChange={(e) => setDirAngleDeg(parseFloat(e.target.value))}
-                className="w-full obsidian-slider-mint h-1.5 bg-[#1b2824] rounded-lg cursor-pointer"
-              />
-
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => setDirAngleDeg(Math.round(gradientData.gradAngleDeg))}
-                  className="px-2.5 py-1 rounded-md bg-[#182b24] border border-primary/30 text-primary text-xs font-medium"
-                >
-                  Steepest Ascent (+∇f)
-                </button>
-                <button
-                  onClick={() => setDirAngleDeg(Math.round((gradientData.gradAngleDeg + 90) % 360))}
-                  className="px-2.5 py-1 rounded-md bg-[#0d1513] border border-[#23352f] text-[#9cb3ab] hover:text-[#e2ece9] text-xs font-medium"
-                >
-                  Zero Change (Dᵤf = 0)
-                </button>
-                <button
-                  onClick={() => setDirAngleDeg(Math.round((gradientData.gradAngleDeg + 180) % 360))}
-                  className="px-2.5 py-1 rounded-md bg-[#4a3b10]/50 border border-tertiary/30 text-tertiary text-xs font-medium"
-                >
-                  Steepest Descent (-∇f)
-                </button>
-              </div>
+          {/* Directional Derivative Ledger */}
+          <div className="border border-border bg-surface rounded-md shadow-xs p-4 space-y-3">
+            <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              <span>DIRECTIONAL DERIVATIVE FORMULATION</span>
+              <span>D_u(f) = ∇f · û</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormulaCard
-                title="Gradient Vector ∇f"
-                subtitle="Steepest Ascent"
-                badge={`‖∇f‖ = ${gradientData.gradMag.toFixed(2)}`}
-                badgeColor="primary"
-                tex={`\\nabla f = \\langle f_x, f_y \\rangle = \\langle ${gradientData.fx.toFixed(2)}, ${gradientData.fy.toFixed(2)} \\rangle`}
-                explanation="Vector sum of orthogonal partial derivatives fx î + fy ĵ."
-              />
-
-              <FormulaCard
-                title="Directional Derivative Dᵤf"
-                subtitle={`Along θ = ${dirAngleDeg.toFixed(0)}°`}
-                badge={`Dᵤf = ${gradientData.dirDeriv >= 0 ? '+' : ''}${gradientData.dirDeriv.toFixed(2)}`}
-                badgeColor="tertiary"
-                tex={`D_{\\vec{u}}f = \\nabla f \\cdot \\vec{u} = \\|\\nabla f\\|\\cos\\phi`}
-                secondaryTex={`= ${gradientData.gradMag.toFixed(2)} \\cos(${gradientData.phiDeg.toFixed(0)}^\\circ) = ${gradientData.dirDeriv.toFixed(3)}`}
-                explanation="Projection of the gradient onto the chosen unit direction vector."
+            <div className="bg-surface-sunken border border-border-subtle p-3 rounded overflow-x-auto text-xs font-mono text-zinc-100">
+              <MathTex
+                tex={`D_{\\hat{u}}f(x_0, y_0) = \\nabla f \\cdot \\hat{u} = (${evalVals.fx.toFixed(2)})(${gradientData.ux.toFixed(2)}) + (${evalVals.fy.toFixed(2)})(${gradientData.uy.toFixed(2)}) = ${gradientData.dirDeriv.toFixed(3)}`}
+                block
               />
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                <span className="text-zinc-500 block text-[10px]">GRADIENT MAGNITUDE</span>
+                <span className="text-zinc-100 font-bold">|∇f| = {gradientData.gradMag.toFixed(3)}</span>
+              </div>
+              <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                <span className="text-zinc-500 block text-[10px]">MAX ASCENT DIRECTION</span>
+                <span className="text-zinc-100 font-bold">{gradientData.gradAngleDeg.toFixed(1)}°</span>
+              </div>
+              <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                <span className="text-zinc-500 block text-[10px]">DIRECTIONAL DERIVATIVE</span>
+                <span className="text-brand-text font-bold">{gradientData.dirDeriv.toFixed(3)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: 2D Contour Map (5 cols) */}
+        <div className="xl:col-span-5 border border-border bg-surface rounded-md shadow-xs p-3.5 space-y-3">
+          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-500 pb-2 border-b border-border">
+            <span>2D CONTOUR LEVEL MAP</span>
+            <span>CLICK TO EVALUATE P₀</span>
+          </div>
+
+          {/* Canvas Viewport */}
+          <div className="relative aspect-square w-full bg-canvas border border-border rounded overflow-hidden cursor-crosshair">
+            <canvas
+              ref={canvasRef}
+              width={360}
+              height={360}
+              onClick={updatePointFromCanvasEvent}
+              className="w-full h-full block"
+            />
+
+            <div className="absolute top-2 left-2 bg-surface/90 border border-border rounded px-2 py-1 text-[10px] font-mono text-zinc-400 pointer-events-none space-y-0.5">
+              <div>∇f: <span className="text-brand-text font-bold">⟨{evalVals.fx.toFixed(2)}, {evalVals.fy.toFixed(2)}⟩</span></div>
+              <div>û: <span className="text-zinc-200">⟨{gradientData.ux.toFixed(2)}, {gradientData.uy.toFixed(2)}⟩</span></div>
+            </div>
+          </div>
+
+          {/* Direction Slider */}
+          <div className="bg-surface-sunken border border-border p-2.5 rounded space-y-1.5 font-mono text-xs">
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400">UNIT VECTOR ANGLE θ:</span>
+              <span className="text-zinc-100 font-bold">{dirAngleDeg}°</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              value={dirAngleDeg}
+              onChange={(e) => setDirAngleDeg(parseInt(e.target.value, 10))}
+              className="w-full"
+            />
           </div>
         </div>
       </div>

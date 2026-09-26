@@ -28,58 +28,57 @@ export default function FormulaCard({
   title,
   subtitle,
   badge,
-  badgeColor = 'primary',
+  badgeType = 'default',
   tex,
   secondaryTex,
   explanation,
   className = ''
 }) {
-  const badgeStyles = {
-    primary: 'bg-[#182b24] text-[#52b788] border-[#52b788]/30',
-    cyan: 'bg-[#182b24] text-[#52b788] border-[#52b788]/30',
-    emerald: 'bg-[#182b24] text-[#52b788] border-[#52b788]/30',
-    amber: 'bg-[#4a3b10]/50 text-[#e7c268] border-[#e7c268]/30',
-    tertiary: 'bg-[#4a3b10]/50 text-[#e7c268] border-[#e7c268]/30',
-    purple: 'bg-[#15221f] text-[#8fe2b7] border-[#23352f]'
+  const badgeClasses = {
+    default: 'text-zinc-400 bg-zinc-900 border-zinc-800',
+    primary: 'text-brand-text bg-blue-950/40 border-blue-900/50',
+    x: 'text-sky-400 bg-sky-950/30 border-sky-900/50',
+    y: 'text-amber-400 bg-amber-950/30 border-amber-900/50',
   };
+
+  const selectedBadgeClass = badgeClasses[badgeType] || badgeClasses.default;
 
   return (
     <div
-      className={`rounded-xl border border-[#23352f] bg-[#111b18] p-5 shadow-lg shadow-black/20 hover:border-[#52b788]/40 transition-colors ${className}`}
+      className={`border border-border bg-surface p-4 rounded-md shadow-xs hover:border-border-strong transition-colors ${className}`}
     >
-      <div className="flex items-center justify-between gap-2 mb-3">
+      <div className="flex items-start justify-between gap-3 mb-2.5">
         <div>
-          <h4 className="font-headline text-sm font-bold text-[#e2ece9]">
+          <h4 className="font-serif text-sm font-semibold text-zinc-100 tracking-tight">
             {title}
           </h4>
           {subtitle && (
-            <p className="text-xs text-[#6d857d] mt-0.5">{subtitle}</p>
+            <p className="text-[11px] font-mono text-zinc-500 mt-0.5 uppercase tracking-wider">
+              {subtitle}
+            </p>
           )}
         </div>
         {badge && (
           <span
-            className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${
-              badgeStyles[badgeColor] || badgeStyles.primary
-            }`}
+            className={`text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border shrink-0 ${selectedBadgeClass}`}
           >
             {badge}
           </span>
         )}
       </div>
 
-      {tex && (
-        <div className="p-3 rounded-lg bg-[#15221f] border border-[#23352f] text-sm text-[#e2ece9] overflow-x-auto">
-          <MathTex tex={tex} block />
-          {secondaryTex && (
-            <div className="mt-1.5 pt-1.5 border-t border-[#23352f] text-xs text-[#9cb3ab] font-mono">
-              <MathTex tex={secondaryTex} />
-            </div>
-          )}
+      <div className="bg-surface-sunken border border-border-subtle p-3 rounded my-2.5 overflow-x-auto text-zinc-100">
+        <MathTex tex={tex} block />
+      </div>
+
+      {secondaryTex && (
+        <div className="bg-surface-sunken/60 border border-border-subtle/60 p-2.5 rounded my-2 overflow-x-auto text-zinc-300 text-xs">
+          <MathTex tex={secondaryTex} block />
         </div>
       )}
 
       {explanation && (
-        <p className="mt-2.5 text-xs text-[#9cb3ab] leading-relaxed">
+        <p className="text-xs text-zinc-400 leading-relaxed mt-2.5 pt-2.5 border-t border-border-subtle">
           {explanation}
         </p>
       )}

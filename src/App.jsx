@@ -9,7 +9,7 @@ import FormulaCard from './components/FormulaCard';
 import { analyzeFunction } from './utils/mathEngine';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('promo');
+  const [activeTab, setActiveTab] = useState('moduleA');
 
   const [expression, setExpression] = useState('x^3*y - 2*x*y^2 + sin(x)');
   const [x0, setX0] = useState(1.2);
@@ -17,22 +17,13 @@ export default function App() {
 
   const analysis = useMemo(() => analyzeFunction(expression), [expression]);
 
-  const topNavLinks = [
-    { id: 'promo', label: '🎬 Concept Video' },
-    { id: 'moduleA', label: '3D Visualizer' },
-    { id: 'moduleB', label: 'Step Solver' },
-    { id: 'curl', label: 'Curl (∇ × F)' },
-    { id: 'moduleC', label: 'Clairaut & Gradient' },
-    { id: 'moduleD', label: 'Practice Modules' }
-  ];
-
-  const sideNavItems = [
-    { id: 'promo', label: 'Concept Video Guide', icon: 'movie' },
-    { id: 'moduleA', label: 'Visualizer 3D', icon: 'view_in_ar' },
-    { id: 'moduleB', label: 'Partial Step Solver', icon: 'calculate' },
-    { id: 'curl', label: 'Curl Vector Field (∇×F)', icon: 'cyclone' },
-    { id: 'moduleC', label: 'Gradient & Clairaut', icon: 'insights' },
-    { id: 'moduleD', label: 'Practice Diagnostic', icon: 'quiz' }
+  const navItems = [
+    { id: 'moduleA', label: '3D Slicing Visualizer', code: '01', shortcut: '⌘1' },
+    { id: 'moduleB', label: 'Symbolic Step Solver', code: '02', shortcut: '⌘2' },
+    { id: 'curl', label: 'Vector Field Curl (∇×F)', code: '03', shortcut: '⌘3' },
+    { id: 'moduleC', label: 'Clairaut & Gradient', code: '04', shortcut: '⌘4' },
+    { id: 'moduleD', label: 'Diagnostic Quiz', code: '05', shortcut: '⌘5' },
+    { id: 'promo', label: 'Concept Explainer (20s)', code: '06', shortcut: '⌘6' },
   ];
 
   const handleSyncTo3D = (newExpr) => {
@@ -40,271 +31,284 @@ export default function App() {
     setActiveTab('moduleA');
   };
 
+  const handleResetCoordinates = () => {
+    setX0(0.0);
+    setY0(0.0);
+  };
+
   return (
-    <div className="bg-[#0d1513] text-[#e2ece9] font-body antialiased selection:bg-primary/30 selection:text-primary flex flex-col min-h-screen">
-      {/* ================= TOP NAV BAR ================= */}
-      <header className="sticky top-0 z-40 w-full flex items-center justify-between px-6 py-3 bg-[#0d1513]/90 backdrop-blur-md shadow-lg shadow-black/40 border-b border-[#23352f]">
-        <div className="flex items-center gap-6">
+    <div className="bg-canvas text-zinc-200 font-sans min-h-screen flex flex-col selection:bg-brand selection:text-white">
+      {/* ================= ARCHITECTURAL TOP UTILITY BAR ================= */}
+      <header className="h-12 border-b border-border bg-canvas px-4 flex items-center justify-between shrink-0 select-none z-30">
+        {/* Left: Brand Identity & Active Breadcrumb */}
+        <div className="flex items-center gap-4">
           <button
             onClick={() => setActiveTab('moduleA')}
-            className="flex items-center gap-2.5 text-left"
+            className="flex items-center gap-2 text-left group"
           >
-            <div className="w-9 h-9 rounded-lg bg-primary/20 border border-primary/40 text-primary flex items-center justify-center font-headline font-bold text-lg shadow-[0_0_12px_rgba(82,183,136,0.25)]">
+            <div className="w-6 h-6 rounded bg-brand flex items-center justify-center text-white font-mono font-bold text-xs tracking-tight shadow-xs">
               ∂
             </div>
-            <span className="font-headline text-xl font-bold tracking-tight text-[#e2ece9]">
-              Partially <span className="text-primary font-mono font-medium">∂/∂x</span>
+            <span className="font-mono text-xs font-semibold tracking-wider text-zinc-100 uppercase">
+              Partially <span className="text-zinc-500 font-normal">/</span> <span className="text-brand-text">∂/∂x</span>
             </span>
           </button>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-label font-medium tracking-wide">
-            {topNavLinks.map((link) => {
-              const isActive = activeTab === link.id;
-              return (
-                <button
-                  key={link.id}
-                  onClick={() => setActiveTab(link.id)}
-                  className={
-                    isActive
-                      ? 'border-b-2 border-primary text-primary font-semibold pb-1 drop-shadow-[0_0_6px_rgba(82,183,136,0.3)]'
-                      : 'text-[#9cb3ab] font-medium hover:text-[#e2ece9] pb-1 transition-colors'
-                  }
-                >
-                  {link.label}
-                </button>
-              );
-            })}
-          </nav>
+          <div className="h-4 w-px bg-border hidden sm:block" />
+
+          <div className="hidden md:flex items-center gap-2 text-[11px] font-mono text-zinc-400">
+            <span className="text-zinc-600">SYS:</span>
+            <span className="text-emerald-500">READY</span>
+            <span className="text-zinc-600">•</span>
+            <span className="text-zinc-400">MATHJS v14</span>
+            <span className="text-zinc-600">•</span>
+            <span className="text-zinc-400">THREE.JS r170</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#15221f] border border-primary/30 text-[11px] font-mono text-primary shadow-[0_0_8px_rgba(82,183,136,0.15)]">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span>Night Session • 3200K Low Blue</span>
-          </div>
+        {/* Center: Segmented Navigation Bar (Medium+ Screens) */}
+        <nav className="hidden xl:flex items-center p-0.5 bg-surface-sunken border border-border rounded">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`px-3 py-1 text-xs font-mono transition-colors rounded-sm ${
+                  isActive
+                    ? 'bg-surface-raised text-zinc-100 font-semibold shadow-xs border border-border'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-surface/50'
+                }`}
+              >
+                <span className="text-zinc-600 mr-1.5">{item.code}</span>
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
 
+        {/* Right: Concrete Utility Actions */}
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setActiveTab('reference')}
-            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-label font-medium rounded-lg transition-colors ${
-              activeTab === 'reference'
-                ? 'bg-[#182b24] text-primary border border-primary/30'
-                : 'text-primary hover:bg-[#1b2824]'
-            }`}
+            onClick={handleResetCoordinates}
+            title="Reset evaluation point to origin (0, 0)"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono text-zinc-400 bg-surface border border-border hover:border-border-strong hover:text-zinc-200 rounded transition-colors"
           >
-            <span className="material-symbols-outlined text-base">bookmark</span>
-            Formula Presets
+            <span>P₀(0, 0)</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('promo')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-primary text-[#003823] text-xs font-label font-bold rounded-lg hover:bg-[#74c69d] transition-all shadow-[0_0_12px_rgba(82,183,136,0.3)] active:scale-[0.98]"
+            onClick={() => setActiveTab(activeTab === 'reference' ? 'moduleA' : 'reference')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono rounded border transition-colors ${
+              activeTab === 'reference'
+                ? 'bg-brand text-white border-brand'
+                : 'bg-surface text-zinc-300 border-border hover:border-border-strong hover:text-zinc-100'
+            }`}
           >
-            <span className="material-symbols-outlined text-base font-semibold">play_circle</span>
-            Concept Video (20s)
+            <span>REFERENCE</span>
           </button>
         </div>
       </header>
 
-      {/* Mobile Horizontal Strip */}
-      <div className="md:hidden border-b border-[#23352f] bg-[#111b18] px-4 py-2 overflow-x-auto flex items-center gap-2">
-        {sideNavItems.map((item) => {
+      {/* Mobile Horizontal Module Switcher */}
+      <div className="xl:hidden flex items-center gap-1 overflow-x-auto px-3 py-2 bg-surface-sunken border-b border-border shrink-0">
+        {navItems.map((item) => {
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-colors ${
+              className={`px-2.5 py-1 text-xs font-mono rounded shrink-0 border transition-colors ${
                 isActive
-                  ? 'bg-[#182b24] text-primary border border-primary/30 font-semibold'
-                  : 'text-[#9cb3ab]'
+                  ? 'bg-surface-raised text-zinc-100 font-semibold border-border'
+                  : 'text-zinc-400 border-transparent hover:border-border'
               }`}
             >
-              <span className="material-symbols-outlined text-base">{item.icon}</span>
+              <span className="text-zinc-600 mr-1">{item.code}</span>
               {item.label}
             </button>
           );
         })}
       </div>
 
-      {/* ================= MAIN APP BODY WITH SIDENAV ================= */}
+      {/* ================= MAIN APPLICATION WORKSPACE ================= */}
       <div className="flex flex-1 overflow-hidden">
-        <aside className="relative flex-col h-[calc(100vh-3.75rem)] w-72 p-4 shrink-0 overflow-y-auto bg-[#111b18] border-r border-[#23352f] hidden lg:flex justify-between">
+        {/* Architectural Left Index Column */}
+        <aside className="hidden lg:flex w-64 border-r border-border bg-surface-sunken flex-col justify-between shrink-0 select-none">
           <div>
-            <div className="flex items-center gap-3 pb-4 mb-4 border-b border-[#23352f]">
-              <div className="w-10 h-10 rounded-lg bg-[#182b24] border border-primary/30 flex items-center justify-center text-primary font-bold shadow-[0_0_10px_rgba(82,183,136,0.2)]">
-                <span className="material-symbols-outlined text-xl">auto_graph</span>
-              </div>
-              <div>
-                <h2 className="font-headline text-sm font-semibold text-[#e2ece9] tracking-tight leading-tight">
-                  Multivariable Calculus
-                </h2>
-                <p className="font-label text-xs text-[#6d857d] leading-tight mt-0.5">
-                  Late-Night Study Suite
-                </p>
-              </div>
+            {/* Section 01: Core Workspaces */}
+            <div className="px-3.5 py-2 text-[10px] font-mono uppercase tracking-wider text-zinc-500 border-b border-border/80 flex items-center justify-between">
+              <span>WORKSPACES</span>
+              <span>INDEX</span>
             </div>
 
-            <div className="px-2 mb-2 text-[11px] font-label font-bold text-[#6d857d] tracking-wider uppercase">
-              CANVAS WORKSPACES
-            </div>
-
-            <nav className="space-y-1">
-              {sideNavItems.map((item) => {
+            <nav className="divide-y divide-border/40">
+              {navItems.map((item) => {
                 const isActive = activeTab === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-mono text-left transition-colors ${
                       isActive
-                        ? 'w-full flex items-center gap-3 px-4 py-3 bg-[#182b24] text-primary border border-primary/30 rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 text-sm shadow-[0_0_12px_rgba(82,183,136,0.15)] text-left'
-                        : 'w-full flex items-center gap-3 px-4 py-3 text-[#9cb3ab] rounded-lg font-medium hover:bg-[#1b2824] hover:text-[#e2ece9] transition-colors duration-150 active:scale-[0.99] text-sm text-left'
-                    }
+                        ? 'bg-surface text-zinc-100 font-semibold border-l-2 border-brand'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-surface/50 border-l-2 border-transparent'
+                    }`}
                   >
-                    <span
-                      className={`material-symbols-outlined text-xl ${
-                        isActive ? 'text-primary' : 'text-[#6d857d]'
-                      }`}
-                    >
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-zinc-600">{item.code}</span>
+                      <span>{item.label}</span>
+                    </div>
+                    <span className="text-[10px] text-zinc-600">{item.shortcut}</span>
                   </button>
                 );
               })}
             </nav>
 
-            <div className="mt-6 p-3.5 bg-[#15221f] rounded-xl border border-[#23352f]">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-tertiary">Remotion Promo</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-bold border border-primary/30">
-                  600f • 30fps
-                </span>
+            {/* Section 02: Active Evaluation Point Readout */}
+            <div className="p-3.5 mt-3 mx-2.5 bg-surface border border-border rounded">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-2 flex items-center justify-between">
+                <span>EVALUATION COORDINATES</span>
+                <span className="text-zinc-600">P₀</span>
               </div>
-              <p className="text-xs text-[#9cb3ab] leading-relaxed mb-3">
-                100% programmatic 1920×1080 promo video for http://github.com/saadsulek/Partially.
-              </p>
-              <button
-                onClick={() => setActiveTab('promo')}
-                className="w-full py-2 bg-primary text-[#003823] font-label text-xs font-bold rounded-lg hover:bg-[#74c69d] transition-colors shadow-[0_0_10px_rgba(82,183,136,0.25)]"
-              >
-                Open Promo Player
-              </button>
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                  <span className="text-sky-400 block text-[10px]">X₀ COORD</span>
+                  <span className="text-zinc-200 font-bold">{x0.toFixed(2)}</span>
+                </div>
+                <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                  <span className="text-amber-400 block text-[10px]">Y₀ COORD</span>
+                  <span className="text-zinc-200 font-bold">{y0.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#23352f] space-y-1">
-            <button
-              onClick={() => setActiveTab('reference')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-colors duration-150 text-sm text-left ${
-                activeTab === 'reference'
-                  ? 'bg-[#182b24] text-primary border border-primary/30'
-                  : 'text-[#9cb3ab] hover:bg-[#1b2824] hover:text-[#e2ece9]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-lg">table_chart</span>
-              <span>Reference Tables</span>
-            </button>
+          {/* Sidebar Footer: System Status */}
+          <div className="p-3.5 border-t border-border bg-surface-sunken text-[11px] font-mono text-zinc-500 space-y-1">
+            <div className="flex items-center justify-between">
+              <span>CAS ENGINE</span>
+              <span className="text-zinc-300">SYMBOLIC</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>RENDER BUFFER</span>
+              <span className="text-zinc-300">WEBGL 2.0</span>
+            </div>
           </div>
         </aside>
 
-        {/* ================= MAIN CONTENT CANVAS ================= */}
-        <main className="flex-1 overflow-y-auto px-6 py-6 lg:px-8 space-y-6 bg-[#0d1513] h-[calc(100vh-3.75rem)]">
-          {activeTab === 'promo' && <PromoVideoShowcase onNavigateTab={setActiveTab} />}
+        {/* Primary Content Panes */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-canvas flex flex-col justify-between">
+          <div className="space-y-6 max-w-7xl mx-auto w-full">
+            {activeTab === 'moduleA' && (
+              <SurfaceViewer
+                expression={expression}
+                onExpressionChange={setExpression}
+                analysis={analysis}
+                x0={x0}
+                setX0={setX0}
+                y0={y0}
+                setY0={setY0}
+                onNavigateTab={setActiveTab}
+              />
+            )}
 
-          {activeTab === 'moduleA' && (
-            <SurfaceViewer
-              expression={expression}
-              onExpressionChange={setExpression}
-              analysis={analysis}
-              x0={x0}
-              setX0={setX0}
-              y0={y0}
-              setY0={setY0}
-              onNavigateTab={setActiveTab}
-            />
-          )}
+            {activeTab === 'moduleB' && (
+              <DerivativeSolver
+                globalExpression={expression}
+                onSyncTo3D={handleSyncTo3D}
+                x0={x0}
+                y0={y0}
+              />
+            )}
 
-          {activeTab === 'moduleB' && (
-            <DerivativeSolver
-              globalExpression={expression}
-              onSyncTo3D={handleSyncTo3D}
-              x0={x0}
-              y0={y0}
-            />
-          )}
+            {activeTab === 'curl' && (
+              <CurlSolver
+                x0={x0}
+                setX0={setX0}
+                y0={y0}
+                setY0={setY0}
+              />
+            )}
 
-          {activeTab === 'curl' && (
-            <CurlSolver
-              x0={x0}
-              setX0={setX0}
-              y0={y0}
-              setY0={setY0}
-            />
-          )}
+            {activeTab === 'moduleC' && (
+              <ConceptPlayground
+                analysis={analysis}
+                x0={x0}
+                setX0={setX0}
+                y0={y0}
+                setY0={setY0}
+              />
+            )}
 
-          {activeTab === 'moduleC' && (
-            <ConceptPlayground
-              analysis={analysis}
-              x0={x0}
-              setX0={setX0}
-              y0={y0}
-              setY0={setY0}
-            />
-          )}
+            {activeTab === 'moduleD' && <QuizModule />}
 
-          {activeTab === 'moduleD' && <QuizModule />}
+            {activeTab === 'promo' && <PromoVideoShowcase onNavigateTab={setActiveTab} />}
 
-          {activeTab === 'reference' && (
-            <section className="space-y-4">
-              <div className="bg-[#111b18] border border-[#23352f] rounded-xl p-5 shadow-lg shadow-black/20">
-                <h1 className="font-headline text-2xl font-bold text-[#e2ece9]">
-                  Multivariable Calculus Reference Tables
-                </h1>
-                <p className="text-sm text-[#9cb3ab] mt-1">
-                  Core definitions and operator identities for first-year engineering students.
-                </p>
-              </div>
+            {activeTab === 'reference' && (
+              <section className="space-y-4">
+                <div className="border border-border bg-surface p-4 rounded-md">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                    CANONICAL IDENTITIES & FORMULATIONS
+                  </div>
+                  <h1 className="font-serif text-xl font-bold text-zinc-100 mt-1">
+                    Multivariable Differential Operators
+                  </h1>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Mathematical formulations for directional variation, linear tangent planes, and rotational vorticity.
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormulaCard
-                  title="Limit Definition (∂f/∂x)"
-                  subtitle="Holding y = y₀ constant"
-                  badge="1st Order"
-                  badgeColor="primary"
-                  tex="f_x(x_0, y_0) = \lim_{h \to 0} \frac{f(x_0 + h, y_0) - f(x_0, y_0)}{h}"
-                  explanation="Instantaneous slope of the 1D curve obtained by slicing the surface with vertical plane y = y₀."
-                />
-                <FormulaCard
-                  title="Limit Definition (∂f/∂y)"
-                  subtitle="Holding x = x₀ constant"
-                  badge="1st Order"
-                  badgeColor="tertiary"
-                  tex="f_y(x_0, y_0) = \lim_{k \to 0} \frac{f(x_0, y_0 + k) - f(x_0, y_0)}{k}"
-                  explanation="Instantaneous slope of the 1D curve obtained by slicing the surface with vertical plane x = x₀."
-                />
-                <FormulaCard
-                  title="Tangent Plane Linearization"
-                  subtitle="Local 2D Linear Approximation"
-                  badge="Geometry"
-                  badgeColor="primary"
-                  tex="z - z_0 = f_x(x_0,y_0)(x - x_0) + f_y(x_0,y_0)(y - y_0)"
-                  explanation="Unique plane tangent to z = f(x,y) at (x₀, y₀, z₀) spanned by vectors ⟨1, 0, fₓ⟩ and ⟨0, 1, fᵧ⟩."
-                />
-                <FormulaCard
-                  title="Curl of a Vector Field (∇ × F)"
-                  subtitle="3D Rotational Vorticity Operator"
-                  badge="Vector Calc"
-                  badgeColor="tertiary"
-                  tex="\nabla \times \vec{F} = \left(\frac{\partial R}{\partial y} - \frac{\partial Q}{\partial z}\right)\hat{i} + \left(\frac{\partial P}{\partial z} - \frac{\partial R}{\partial x}\right)\hat{j} + \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right)\hat{k}"
-                  explanation="Measures microscopic circulation density around each coordinate axis. If ∇ × F = 0 everywhere, F is conservative."
-                />
-              </div>
-            </section>
-          )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormulaCard
+                    title="Partial Derivative with respect to x"
+                    subtitle="Constraint: y = y₀ = const."
+                    badge="First-Order"
+                    badgeType="x"
+                    tex="f_x(x_0, y_0) = \lim_{h \to 0} \frac{f(x_0 + h, y_0) - f(x_0, y_0)}{h}"
+                    explanation="Measures the instantaneous rate of change of height z along the directional tangent vector Tₓ = ⟨1, 0, fₓ⟩."
+                  />
+                  <FormulaCard
+                    title="Partial Derivative with respect to y"
+                    subtitle="Constraint: x = x₀ = const."
+                    badge="First-Order"
+                    badgeType="y"
+                    tex="f_y(x_0, y_0) = \lim_{k \to 0} \frac{f(x_0, y_0 + k) - f(x_0, y_0)}{k}"
+                    explanation="Measures the instantaneous rate of change of height z along the orthogonal directional tangent vector Tᵧ = ⟨0, 1, fᵧ⟩."
+                  />
+                  <FormulaCard
+                    title="First-Order Linear Tangent Plane"
+                    subtitle="Taylor Expansion Degree 1"
+                    badge="Linearization"
+                    badgeType="primary"
+                    tex="z - z_0 = f_x(x_0,y_0)(x - x_0) + f_y(x_0,y_0)(y - y_0)"
+                    explanation="Unique 2D affine hyperplane approximating surface z = f(x, y) near P₀. Normal vector is given by n = ⟨fₓ, fᵧ, -1⟩."
+                  />
+                  <FormulaCard
+                    title="Curl Operator (∇ × F)"
+                    subtitle="Cartesian Vorticity Vector"
+                    badge="Vector Calc"
+                    badgeType="default"
+                    tex="\nabla \times \vec{F} = \left(\frac{\partial R}{\partial y} - \frac{\partial Q}{\partial z}\right)\hat{i} + \left(\frac{\partial P}{\partial z} - \frac{\partial R}{\partial x}\right)\hat{j} + \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right)\hat{k}"
+                    explanation="Calculates the local microscopic angular velocity field. If ∇ × F = 0 in a simply-connected domain, F is conservative."
+                  />
+                </div>
+              </section>
+            )}
+          </div>
 
-          <footer className="pt-6 pb-2 text-center text-xs text-[#6d857d] font-label">
-            Partially (TerraCalc ∂/∂x) Multivariable Suite • Late-Night Spectral Obsidian Edition • Literata &amp; JetBrains Mono
+          {/* Architectural System Footer */}
+          <footer className="mt-8 pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-zinc-500 gap-2">
+            <div>
+              <span>PARTIALLY</span> // <span>MULTIVARIABLE CALCULUS SUITE</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span>CANVAS: THREE.JS R170</span>
+              <span>•</span>
+              <span>CAS: MATHJS 14.0</span>
+              <span>•</span>
+              <span>MATH: KATEX 0.16</span>
+            </div>
           </footer>
         </main>
       </div>

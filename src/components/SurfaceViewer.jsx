@@ -57,11 +57,13 @@ export default function SurfaceViewer({
     const height = container.clientHeight || 440;
 
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x09090b);
+
     const camera = new THREE.PerspectiveCamera(39, width / height, 0.1, 100);
     cameraRef.current = camera;
     syncCameraPosition();
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
@@ -69,31 +71,32 @@ export default function SurfaceViewer({
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const dirLight1 = new THREE.DirectionalLight(0x92f7c3, 0.85);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+    const dirLight1 = new THREE.DirectionalLight(0xd4d4d8, 0.75);
     dirLight1.position.set(8, 14, 10);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xe7c268, 0.45);
+    const dirLight2 = new THREE.DirectionalLight(0x71717a, 0.4);
     dirLight2.position.set(-8, -6, -8);
     scene.add(dirLight2);
 
-    // Spectral Obsidian Coordinate Grid & Axes
+    // Architectural Ground Grid & Structural Coordinate Axes
     const staticGroup = new THREE.Group();
     scene.add(staticGroup);
 
-    const gridHelper = new THREE.GridHelper(6, 12, 0x23352f, 0x162722);
+    const gridHelper = new THREE.GridHelper(6, 12, 0x3f3f46, 0x1f1f23);
     staticGroup.add(gridHelper);
 
     const createAxisLine = (p1, p2, colorHex) => {
       const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
-      const mat = new THREE.LineBasicMaterial({ color: colorHex });
+      const mat = new THREE.LineBasicMaterial({ color: colorHex, linewidth: 1.5 });
       return new THREE.Line(geom, mat);
     };
-    // X-axis (#52b788 mint), Y-axis (#e7c268 gold), Z-axis (#6d857d sage)
-    staticGroup.add(createAxisLine(new THREE.Vector3(-3.3, 0, 0), new THREE.Vector3(3.3, 0, 0), 0x52b788));
-    staticGroup.add(createAxisLine(new THREE.Vector3(0, 0, 3.3), new THREE.Vector3(0, 0, -3.3), 0xe7c268));
-    staticGroup.add(createAxisLine(new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 3.3, 0), 0x6d857d));
+
+    // X-axis (Cyan #38bdf8), Y-axis (Amber #f59e0b), Z-axis (Zinc #71717a)
+    staticGroup.add(createAxisLine(new THREE.Vector3(-3.3, 0, 0), new THREE.Vector3(3.3, 0, 0), 0x38bdf8));
+    staticGroup.add(createAxisLine(new THREE.Vector3(0, 0, 3.3), new THREE.Vector3(0, 0, -3.3), 0xf59e0b));
+    staticGroup.add(createAxisLine(new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 3.3, 0), 0x71717a));
 
     const dynamicGroup = new THREE.Group();
     scene.add(dynamicGroup);
@@ -187,7 +190,7 @@ export default function SurfaceViewer({
     };
   }, []);
 
-  // Update 3D Surface & Slicing Geometry in Spectral Obsidian Palette (#52b788 Mint & #e7c268 Gold)
+  // Update 3D Surface & Slicing Geometry (Swiss Technical Palette)
   useEffect(() => {
     const group = dynamicGroupRef.current;
     if (!group || !analysis || !analysis.isValid) return;
@@ -228,10 +231,10 @@ export default function SurfaceViewer({
     const colors = new Float32Array((segments + 1) * (segments + 1) * 3);
     const indices = [];
 
-    // Spectral Obsidian color ramp: Deep Forest (#183a2c) -> Luminous Mint (#52b788) -> Warm Gold (#e7c268)
-    const cLow = new THREE.Color(0x183a2c);
-    const cMid = new THREE.Color(0x52b788);
-    const cHigh = new THREE.Color(0xe7c268);
+    // Technical elevation color ramp: Deep Charcoal -> Slate Blue -> Cool Silver
+    const cLow = new THREE.Color(0x1e293b);
+    const cMid = new THREE.Color(0x2563eb);
+    const cHigh = new THREE.Color(0x94a3b8);
     const tmpColor = new THREE.Color();
 
     let ptr = 0;
@@ -247,10 +250,10 @@ export default function SurfaceViewer({
         positions[ptr * 3 + 2] = v.z;
 
         const t = maxZ > minZ ? (mz - minZ) / (maxZ - minZ) : 0.5;
-        if (t < 0.55) {
-          tmpColor.lerpColors(cLow, cMid, t / 0.55);
+        if (t < 0.5) {
+          tmpColor.lerpColors(cLow, cMid, t / 0.5);
         } else {
-          tmpColor.lerpColors(cMid, cHigh, (t - 0.55) / 0.45);
+          tmpColor.lerpColors(cMid, cHigh, (t - 0.5) / 0.5);
         }
         colors[ptr * 3] = tmpColor.r;
         colors[ptr * 3 + 1] = tmpColor.g;
@@ -281,20 +284,21 @@ export default function SurfaceViewer({
           vertexColors: true,
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.76,
-          shininess: 45
+          opacity: 0.8,
+          shininess: 30
         })
       )
     );
 
+    // Architectural Wireframe Overlay
     group.add(
       new THREE.Mesh(
         geom,
         new THREE.MeshBasicMaterial({
-          color: 0x52b788,
+          color: 0x38bdf8,
           wireframe: true,
           transparent: true,
-          opacity: 0.18
+          opacity: 0.15
         })
       )
     );
@@ -302,10 +306,10 @@ export default function SurfaceViewer({
     const { z: z0, fx, fy } = evalData;
     const p0Vec = toVec3(x0, y0, z0);
 
-    // Point P(x0, y0, z0)
+    // Point P0(x0, y0, z0) Marker
     const ptSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(0.11, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0x52b788 })
+      new THREE.SphereGeometry(0.09, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xf4f4f5 })
     );
     ptSphere.position.copy(p0Vec);
     group.add(ptSphere);
@@ -315,16 +319,16 @@ export default function SurfaceViewer({
     const planeHeight = Math.max(2.2, planeMaxZ - planeMinZ);
     const planeCenterY = (planeMinZ + planeMaxZ) / 2;
 
-    // X-Slice Plane (y = y0 held constant -> Mint #52b788)
+    // X-Slice Plane (y = y0 held constant -> Cyan #38bdf8)
     if (showSliceY) {
       const sliceYPlaneGeom = new THREE.PlaneGeometry(5, planeHeight);
       const sliceYPlane = new THREE.Mesh(
         sliceYPlaneGeom,
         new THREE.MeshBasicMaterial({
-          color: 0x52b788,
+          color: 0x38bdf8,
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.14,
+          opacity: 0.12,
           depthWrite: false
         })
       );
@@ -333,7 +337,7 @@ export default function SurfaceViewer({
 
       const borderY = new THREE.LineSegments(
         new THREE.EdgesGeometry(sliceYPlaneGeom),
-        new THREE.LineBasicMaterial({ color: 0x52b788, transparent: true, opacity: 0.65 })
+        new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 })
       );
       borderY.position.copy(sliceYPlane.position);
       group.add(borderY);
@@ -345,26 +349,26 @@ export default function SurfaceViewer({
       }
       group.add(
         new THREE.Mesh(
-          new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curvePtsX), 75, 0.04, 8, false),
-          new THREE.MeshBasicMaterial({ color: 0x74c69d })
+          new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curvePtsX), 75, 0.035, 8, false),
+          new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
         )
       );
 
       const dirX = new THREE.Vector3(1, fx * zScale, 0).normalize();
-      group.add(new THREE.ArrowHelper(dirX, p0Vec, 1.45, 0x52b788, 0.26, 0.15));
+      group.add(new THREE.ArrowHelper(dirX, p0Vec, 1.4, 0x38bdf8, 0.24, 0.12));
     }
 
-    // Y-Slice Plane (x = x0 held constant -> Gold #e7c268)
+    // Y-Slice Plane (x = x0 held constant -> Amber #f59e0b)
     if (showSliceX) {
       const sliceXPlaneGeom = new THREE.PlaneGeometry(5, planeHeight);
       sliceXPlaneGeom.rotateY(Math.PI / 2);
       const sliceXPlane = new THREE.Mesh(
         sliceXPlaneGeom,
         new THREE.MeshBasicMaterial({
-          color: 0xe7c268,
+          color: 0xf59e0b,
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.14,
+          opacity: 0.12,
           depthWrite: false
         })
       );
@@ -373,7 +377,7 @@ export default function SurfaceViewer({
 
       const borderX = new THREE.LineSegments(
         new THREE.EdgesGeometry(sliceXPlaneGeom),
-        new THREE.LineBasicMaterial({ color: 0xe7c268, transparent: true, opacity: 0.65 })
+        new THREE.LineBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.7 })
       );
       borderX.position.copy(sliceXPlane.position);
       group.add(borderX);
@@ -385,16 +389,16 @@ export default function SurfaceViewer({
       }
       group.add(
         new THREE.Mesh(
-          new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curvePtsY), 75, 0.04, 8, false),
-          new THREE.MeshBasicMaterial({ color: 0xe7c268 })
+          new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curvePtsY), 75, 0.035, 8, false),
+          new THREE.MeshBasicMaterial({ color: 0xf59e0b })
         )
       );
 
       const dirY = new THREE.Vector3(0, fy * zScale, -1).normalize();
-      group.add(new THREE.ArrowHelper(dirY, p0Vec, 1.45, 0xe7c268, 0.26, 0.15));
+      group.add(new THREE.ArrowHelper(dirY, p0Vec, 1.4, 0xf59e0b, 0.24, 0.12));
     }
 
-    // Dynamic Tangent Plane & Gradient Vector at P(x0, y0, z0)
+    // Dynamic Tangent Plane at P(x0, y0, z0)
     if (showTangentPlane) {
       const patchRadius = 1.25;
       const tpSegments = 8;
@@ -433,10 +437,10 @@ export default function SurfaceViewer({
         new THREE.Mesh(
           tpGeom,
           new THREE.MeshBasicMaterial({
-            color: 0xe7c268,
+            color: 0x71717a,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.28,
+            opacity: 0.35,
             depthWrite: false
           })
         )
@@ -445,20 +449,17 @@ export default function SurfaceViewer({
         new THREE.Mesh(
           tpGeom,
           new THREE.MeshBasicMaterial({
-            color: 0xffd566,
+            color: 0xa1a1aa,
             wireframe: true,
             transparent: true,
-            opacity: 0.45
+            opacity: 0.6
           })
         )
       );
 
-      // Steepest ascent vector ∇f projected onto tangent plane (#4ade80)
-      const gradMagSq = fx * fx + fy * fy;
-      if (gradMagSq > 1e-4) {
-        const grad3D = new THREE.Vector3(fx, gradMagSq * zScale, -fy).normalize();
-        group.add(new THREE.ArrowHelper(grad3D, p0Vec, 1.5, 0x4ade80, 0.28, 0.16));
-      }
+      // Normal Vector n = ⟨fx, fy, -1⟩
+      const normVec = new THREE.Vector3(fx, -1 * zScale, -fy).normalize();
+      group.add(new THREE.ArrowHelper(normVec, p0Vec, 1.2, 0xd4d4d8, 0.2, 0.1));
     }
   }, [analysis, evalData, x0, y0, showSliceY, showSliceX, showTangentPlane]);
 
@@ -484,16 +485,6 @@ export default function SurfaceViewer({
     syncCameraPosition();
   };
 
-  const rotateCameraStep = (deltaTheta) => {
-    camSphericalRef.current.theta += deltaTheta;
-    syncCameraPosition();
-  };
-
-  const adjustZoom = (factor) => {
-    camSphericalRef.current.radius = Math.max(4.5, Math.min(24, camSphericalRef.current.radius * factor));
-    syncCameraPosition();
-  };
-
   const copyLatexToClipboard = () => {
     if (!analysis.isValid) return;
     navigator.clipboard?.writeText(`f(x, y) = ${analysis.latex.f}`);
@@ -501,159 +492,111 @@ export default function SurfaceViewer({
     setTimeout(() => setCopiedLatex(false), 1800);
   };
 
-  const gradMag = Math.hypot(evalData.fx, evalData.fy);
-  const ascentAngleDeg = (Math.atan2(evalData.fy, evalData.fx) * 180) / Math.PI;
+  // Second derivative test discriminant: D = f_xx * f_yy - (f_xy)^2
+  const D = evalData.fxx * evalData.fyy - Math.pow(evalData.fxy, 2);
+  let extremumClassification = 'INCONCLUSIVE';
+  if (Math.abs(evalData.fx) < 0.05 && Math.abs(evalData.fy) < 0.05) {
+    if (D > 0) {
+      extremumClassification = evalData.fxx > 0 ? 'LOCAL MINIMUM' : 'LOCAL MAXIMUM';
+    } else if (D < 0) {
+      extremumClassification = 'SADDLE POINT';
+    }
+  } else {
+    extremumClassification = 'REGULAR POINT (∇f ≠ 0)';
+  }
 
   return (
-    <div className="space-y-6">
-      {/* SECTION 1: WORKSPACE HEADER & INTEGRATED TOOLBAR (from code.html) */}
-      <section className="bg-[#111b18] border border-[#23352f] rounded-xl p-5 shadow-lg shadow-black/20">
-        <div className="flex items-center gap-2 text-xs font-label text-[#6d857d] mb-2">
-          <span>Calculus III</span>
-          <span className="material-symbols-outlined text-sm">chevron_right</span>
-          <span>Multivariable Calculus</span>
-          <span className="material-symbols-outlined text-sm">chevron_right</span>
-          <span className="text-primary font-semibold">Partial Derivatives &amp; Tangent Planes</span>
-        </div>
-
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div className="space-y-4">
+      {/* ================= COMPACT ARCHITECTURAL WORKBENCH HEADER ================= */}
+      <section className="border border-border bg-surface p-3.5 sm:p-4 rounded-md shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-border/80">
           <div>
-            <h1 className="font-headline text-2xl lg:text-3xl font-bold text-[#e2ece9] tracking-tight">
-              Interactive Partial Differentiation &amp; Surface Analysis
+            <div className="text-[10px] font-mono tracking-wider uppercase text-zinc-500">
+              MODULE 01 // 3D SLICING &amp; TANGENT LINEARIZATION
+            </div>
+            <h1 className="font-serif text-lg font-bold text-zinc-100 tracking-tight mt-0.5">
+              Orthogonal Slicing Planes &amp; Partial Derivative Slopes
             </h1>
-            <p className="text-sm text-[#9cb3ab] mt-1.5 max-w-3xl leading-relaxed">
-              Partial derivatives measure the rate of change of a multivariable function with respect to one variable while holding all other variables constant. Geometrically, they yield tangent slopes along perpendicular coordinate cross-sections, forming the local tangent plane.
-            </p>
           </div>
 
-          {/* Quick Controls Badge Cluster */}
-          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
-            <span className="px-2.5 py-1 text-xs font-mono font-medium bg-[#15221f] rounded-lg border border-[#23352f] text-[#9cb3ab]">
-              (x₀, y₀) = (<span className="font-bold text-primary">{x0.toFixed(2)}</span>,{' '}
-              <span className="font-bold text-tertiary">{y0.toFixed(2)}</span>)
-            </span>
-            <span className="px-2.5 py-1 text-xs font-mono font-medium bg-[#15221f] rounded-lg border border-[#23352f] text-[#9cb3ab]">
-              z₀ = <span className="font-bold text-tertiary">{evalData.z.toFixed(2)}</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Integrated Quick Toolbar */}
-        <div className="mt-5 pt-4 border-t border-[#23352f] flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5 flex-1">
-            <label className="text-xs font-label font-bold text-[#6d857d] uppercase tracking-wider">
-              Preset Surface:
-            </label>
-            <div className="relative">
-              <select
-                value={
-                  SURFACE_PRESETS.find((p) => p.expr === expression.trim())?.expr || 'custom'
-                }
-                onChange={(e) => {
-                  if (e.target.value !== 'custom') onExpressionChange(e.target.value);
-                }}
-                className="bg-[#15221f] text-xs font-label font-semibold text-[#e2ece9] pl-3 pr-8 py-1.5 rounded-lg border border-[#23352f] focus:ring-1 focus:ring-primary focus:outline-none appearance-none cursor-pointer"
-              >
-                {SURFACE_PRESETS.map((p) => (
-                  <option key={p.id} value={p.expr}>
-                    {p.name}: {p.label}
-                  </option>
-                ))}
-                <option value="custom">Custom Expression...</option>
-              </select>
-              <span className="material-symbols-outlined text-sm text-[#6d857d] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                expand_more
-              </span>
+          <div className="flex items-center gap-2 text-xs font-mono">
+            <div className="bg-surface-sunken border border-border px-2.5 py-1 rounded">
+              <span className="text-zinc-500 mr-1.5">P₀:</span>
+              <span className="text-sky-400 font-bold">{x0.toFixed(2)}</span>
+              <span className="text-zinc-600 mx-1">,</span>
+              <span className="text-amber-400 font-bold">{y0.toFixed(2)}</span>
+              <span className="text-zinc-600 mx-1">,</span>
+              <span className="text-zinc-200">{evalData.z.toFixed(2)}</span>
             </div>
-
-            {/* Inline Custom Function Input */}
-            <div className="relative flex items-center min-w-[210px] max-w-xs flex-1">
-              <span className="absolute left-3 font-mono text-xs font-semibold text-primary">
-                f(x,y) =
-              </span>
-              <input
-                type="text"
-                value={expression}
-                onChange={(e) => onExpressionChange(e.target.value)}
-                placeholder="x^3*y - 2*x*y^2 + sin(x)"
-                className="w-full bg-[#15221f] border border-[#23352f] rounded-lg pl-16 pr-3 py-1.5 text-xs font-mono text-[#e2ece9] focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-
-            {/* Interactive Mode Pill Selector */}
-            <div className="hidden sm:flex items-center bg-[#15221f] p-0.5 rounded-lg border border-[#23352f]">
-              <button className="px-3 py-1 text-xs font-semibold rounded-md bg-[#1b2824] text-primary border border-primary/30">
-                Explore 3D
-              </button>
-              <button
-                onClick={() => onNavigateTab('moduleB')}
-                className="px-3 py-1 text-xs font-medium text-[#9cb3ab] hover:text-[#e2ece9] transition-colors"
-              >
-                Step Solver
-              </button>
-              <button
-                onClick={() => onNavigateTab('curl')}
-                className="px-3 py-1 text-xs font-medium text-[#9cb3ab] hover:text-[#e2ece9] transition-colors"
-              >
-                Curl (∇×F)
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setX0(1.2);
-                setY0(0.8);
-                snapCamera('isometric');
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#15221f] hover:bg-[#1b2824] text-xs font-medium text-[#e2ece9] border border-[#23352f] rounded-lg transition-colors"
-            >
-              <span className="material-symbols-outlined text-sm text-[#6d857d]">restart_alt</span>
-              Reset Camera
-            </button>
             <button
               onClick={copyLatexToClipboard}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#15221f] hover:bg-[#1b2824] text-xs font-medium text-[#e2ece9] border border-[#23352f] rounded-lg transition-colors"
+              className="px-2.5 py-1 bg-surface-raised hover:bg-zinc-800 border border-border text-zinc-300 rounded transition-colors"
             >
-              <span className="material-symbols-outlined text-sm text-[#6d857d]">code</span>
-              {copiedLatex ? 'Copied LaTeX!' : 'Export LaTeX'}
+              {copiedLatex ? 'COPIED' : 'TEX'}
             </button>
+          </div>
+        </div>
+
+        {/* Function Input & Preset Bar */}
+        <div className="pt-3 grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+          <div className="lg:col-span-4 flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 shrink-0">
+              PRESET:
+            </span>
+            <select
+              value={
+                SURFACE_PRESETS.find((p) => p.expr === expression.trim())?.expr || 'custom'
+              }
+              onChange={(e) => {
+                if (e.target.value !== 'custom') onExpressionChange(e.target.value);
+              }}
+              className="w-full bg-surface-sunken border border-border rounded px-2.5 py-1 text-xs font-mono text-zinc-200 focus:outline-none focus:ring-1 focus:ring-brand"
+            >
+              {SURFACE_PRESETS.map((p) => (
+                <option key={p.id} value={p.expr}>
+                  {p.name}
+                </option>
+              ))}
+              <option value="custom">Custom Equation...</option>
+            </select>
+          </div>
+
+          <div className="lg:col-span-8 flex items-center gap-2">
+            <span className="font-mono text-xs text-brand-text shrink-0">z = f(x, y) =</span>
+            <input
+              type="text"
+              value={expression}
+              onChange={(e) => onExpressionChange(e.target.value)}
+              placeholder="x^3*y - 2*x*y^2 + sin(x)"
+              className="w-full bg-surface-sunken border border-border rounded px-3 py-1 font-mono text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-brand"
+            />
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: CORE INTERACTIVE MULTI-PANEL WORKSPACE (7 COLS + 5 COLS) */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* LEFT/CENTER: 3D SURFACE & TANGENT PLANE CANVAS (7 COLS) */}
-        <div className="xl:col-span-7 flex flex-col bg-[#111b18] rounded-xl border border-[#23352f] overflow-hidden shadow-lg shadow-black/20">
-          {/* Canvas Top Bar / HUD Controls */}
-          <div className="px-4 py-3 bg-[#15221f] border-b border-[#23352f] flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_#52b788] animate-pulse" />
-              <span className="text-xs font-label font-bold text-[#e2ece9]">
-                3D Surface Canvas Simulator
-              </span>
-              <span className="text-[11px] text-[#6d857d] px-2 py-0.5 rounded bg-[#0d1513] border border-[#23352f] font-mono">
-                Shader: Spectral Obsidian Dark
-              </span>
-            </div>
-
-            {/* View Angle Shortcuts */}
-            <div className="flex items-center gap-1">
+      {/* ================= MAIN DUAL-PANE WORKSPACE ================= */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
+        {/* LEFT COLUMN: 3D VIEWPORT & PARAMETRIC CONTROLS (7 COLS) */}
+        <div className="xl:col-span-7 border border-border bg-surface rounded-md shadow-xs overflow-hidden flex flex-col">
+          {/* Viewport Segmented Camera Controls */}
+          <div className="px-3.5 py-2 border-b border-border bg-surface-sunken flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              VIEWPORT CAMERA PROJECTION
+            </span>
+            <div className="inline-flex p-0.5 bg-surface border border-border rounded">
               {[
-                { id: 'isometric', label: 'Isometric' },
-                { id: 'top', label: 'Top (Contour)' },
-                { id: 'sliceY', label: 'X-Elev (∂f/∂x)' },
-                { id: 'sliceX', label: 'Y-Elev (∂f/∂y)' }
+                { id: 'isometric', label: 'ISOMETRIC' },
+                { id: 'top', label: 'TOP (XY)' },
+                { id: 'sliceY', label: 'X-ELEV' },
+                { id: 'sliceX', label: 'Y-ELEV' }
               ].map((btn) => (
                 <button
                   key={btn.id}
                   onClick={() => snapCamera(btn.id)}
-                  className={`px-2 py-1 text-[11px] rounded transition-all ${
+                  className={`px-2.5 py-0.5 text-[10px] font-mono transition-colors rounded-sm ${
                     activeCamPreset === btn.id
-                      ? 'font-semibold bg-primary text-[#003823] shadow-[0_0_8px_rgba(82,183,136,0.3)]'
-                      : 'text-[#9cb3ab] hover:bg-[#1b2824] hover:text-[#e2ece9]'
+                      ? 'bg-brand text-white font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   {btn.label}
@@ -662,71 +605,35 @@ export default function SurfaceViewer({
             </div>
           </div>
 
-          {/* Main 3D WebGL Viewport */}
-          <div className="relative w-full h-[440px] bg-gradient-to-b from-[#08100e] via-[#0d1714] to-[#0a1210] overflow-hidden select-none cursor-grab active:cursor-grabbing border-b border-[#23352f]">
+          {/* WebGL Canvas Viewport */}
+          <div className="relative w-full h-[410px] bg-canvas border-b border-border select-none">
             <div ref={mountRef} className="w-full h-full touch-none" />
 
-            {/* Floating Overlay: Canvas Legend (Dark Obsidian Card from code.html) */}
-            <div className="absolute top-3 left-3 bg-[#0d1513]/90 backdrop-blur-md border border-[#23352f] rounded-lg p-2.5 shadow-md text-xs space-y-1.5 pointer-events-none">
+            {/* Architectural HUD Overlay */}
+            <div className="absolute top-2.5 left-2.5 bg-surface/90 border border-border rounded p-2 text-[10px] font-mono space-y-1 select-none pointer-events-none">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-1 bg-[#52b788] rounded shadow-[0_0_6px_#52b788]" />
-                <span className="text-[#e2ece9] font-medium">∂f/∂x (Along X-slice, Y constant)</span>
+                <span className="w-2.5 h-1 bg-sky-400 rounded-xs" />
+                <span className="text-zinc-300">PLANE y = y₀ // Tₓ = ⟨1, 0, fₓ⟩</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-1 bg-[#e7c268] rounded shadow-[0_0_6px_#e7c268]" />
-                <span className="text-[#e2ece9] font-medium">∂f/∂y (Along Y-slice, X constant)</span>
+                <span className="w-2.5 h-1 bg-amber-400 rounded-xs" />
+                <span className="text-zinc-300">PLANE x = x₀ // Tᵧ = ⟨0, 1, fᵧ⟩</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-1 bg-[#4ade80] rounded shadow-[0_0_6px_#4ade80]" />
-                <span className="text-[#e2ece9] font-medium">∇f = [∂f/∂x, ∂f/∂y]ᵀ (Steepest)</span>
+                <span className="w-2.5 h-1 bg-zinc-400 rounded-xs" />
+                <span className="text-zinc-300">TANGENT PLANE // n = ⟨fₓ, fᵧ, -1⟩</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-2 bg-[#e7c268]/20 border border-[#e7c268] rounded" />
-                <span className="text-[#e2ece9] font-medium">Local Tangent Plane at P</span>
-              </div>
-            </div>
-
-            {/* Floating Compass / Quick View Widget */}
-            <div className="absolute bottom-3 right-3 bg-[#0d1513]/85 backdrop-blur-md border border-[#23352f] rounded-lg p-1.5 flex items-center gap-1 shadow-md">
-              <button
-                onClick={() => rotateCameraStep(-0.25)}
-                className="p-1 hover:bg-[#1b2824] rounded text-[#6d857d] hover:text-[#e2ece9] transition-colors"
-                title="Rotate Left"
-              >
-                <span className="material-symbols-outlined text-base">rotate_left</span>
-              </button>
-              <button
-                onClick={() => rotateCameraStep(0.25)}
-                className="p-1 hover:bg-[#1b2824] rounded text-[#6d857d] hover:text-[#e2ece9] transition-colors"
-                title="Rotate Right"
-              >
-                <span className="material-symbols-outlined text-base">rotate_right</span>
-              </button>
-              <button
-                onClick={() => adjustZoom(0.86)}
-                className="p-1 hover:bg-[#1b2824] rounded text-[#6d857d] hover:text-[#e2ece9] transition-colors"
-                title="Zoom In"
-              >
-                <span className="material-symbols-outlined text-base">zoom_in</span>
-              </button>
-              <button
-                onClick={() => adjustZoom(1.16)}
-                className="p-1 hover:bg-[#1b2824] rounded text-[#6d857d] hover:text-[#e2ece9] transition-colors"
-                title="Zoom Out"
-              >
-                <span className="material-symbols-outlined text-base">zoom_out</span>
-              </button>
             </div>
           </div>
 
-          {/* On-Canvas Parametric Sliders & Slice Visibility HUD */}
-          <div className="p-4 bg-[#111b18] space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Slider X0 */}
-              <div className="space-y-1">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-mono font-semibold text-primary">Point x₀ Coordinate:</span>
-                  <span className="font-mono text-[#e2ece9] font-bold">{x0.toFixed(2)}</span>
+          {/* Precision Sliders & Layer Toggles */}
+          <div className="p-3.5 bg-surface space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* X0 Slider */}
+              <div className="bg-surface-sunken border border-border p-2.5 rounded">
+                <div className="flex justify-between items-center text-xs font-mono mb-1.5">
+                  <span className="text-sky-400 font-semibold">X₀ POSITION</span>
+                  <span className="text-zinc-100 font-bold">{x0.toFixed(2)}</span>
                 </div>
                 <input
                   type="range"
@@ -735,20 +642,20 @@ export default function SurfaceViewer({
                   step="0.05"
                   value={x0}
                   onChange={(e) => setX0(parseFloat(e.target.value))}
-                  className="w-full obsidian-slider-mint h-1.5 bg-[#1b2824] rounded-lg cursor-pointer"
+                  className="w-full slider-x"
                 />
-                <div className="flex justify-between text-[10px] text-[#6d857d] font-mono">
-                  <span>-2.5</span>
-                  <span>0.0</span>
-                  <span>+2.5</span>
+                <div className="flex justify-between text-[9px] font-mono text-zinc-600 mt-1">
+                  <span>-2.50</span>
+                  <span>0.00</span>
+                  <span>+2.50</span>
                 </div>
               </div>
 
-              {/* Slider Y0 */}
-              <div className="space-y-1">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-mono font-semibold text-tertiary">Point y₀ Coordinate:</span>
-                  <span className="font-mono text-[#e2ece9] font-bold">{y0.toFixed(2)}</span>
+              {/* Y0 Slider */}
+              <div className="bg-surface-sunken border border-border p-2.5 rounded">
+                <div className="flex justify-between items-center text-xs font-mono mb-1.5">
+                  <span className="text-amber-400 font-semibold">Y₀ POSITION</span>
+                  <span className="text-zinc-100 font-bold">{y0.toFixed(2)}</span>
                 </div>
                 <input
                   type="range"
@@ -757,349 +664,177 @@ export default function SurfaceViewer({
                   step="0.05"
                   value={y0}
                   onChange={(e) => setY0(parseFloat(e.target.value))}
-                  className="w-full obsidian-slider-gold h-1.5 bg-[#1b2824] rounded-lg cursor-pointer"
+                  className="w-full slider-y"
                 />
-                <div className="flex justify-between text-[10px] text-[#6d857d] font-mono">
-                  <span>-2.5</span>
-                  <span>0.0</span>
-                  <span>+2.5</span>
+                <div className="flex justify-between text-[9px] font-mono text-zinc-600 mt-1">
+                  <span>-2.50</span>
+                  <span>0.00</span>
+                  <span>+2.50</span>
                 </div>
               </div>
             </div>
 
-            {/* Slice & Vector Checkboxes */}
-            <div className="flex flex-wrap items-center gap-5 pt-2.5 border-t border-[#23352f] text-xs">
-              <label className="flex items-center gap-2 cursor-pointer text-[#e2ece9]">
-                <input
-                  type="checkbox"
-                  checked={showSliceY}
-                  onChange={(e) => setShowSliceY(e.target.checked)}
-                  className="rounded bg-[#15221f] text-primary focus:ring-primary border-[#23352f]"
-                />
-                <span>Show X-Slice Plane (y = {y0.toFixed(2)} constant)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-[#e2ece9]">
-                <input
-                  type="checkbox"
-                  checked={showSliceX}
-                  onChange={(e) => setShowSliceX(e.target.checked)}
-                  className="rounded bg-[#15221f] text-tertiary focus:ring-tertiary border-[#23352f]"
-                />
-                <span>Show Y-Slice Plane (x = {x0.toFixed(2)} constant)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-[#e2ece9]">
-                <input
-                  type="checkbox"
-                  checked={showTangentPlane}
-                  onChange={(e) => setShowTangentPlane(e.target.checked)}
-                  className="rounded bg-[#15221f] text-[#4ade80] focus:ring-[#4ade80] border-[#23352f]"
-                />
-                <span>Show Tangent Plane &amp; ∇f</span>
-              </label>
+            {/* Segmented Slicing Toggle Buttons */}
+            <div className="pt-2 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              <button
+                type="button"
+                onClick={() => setShowSliceY(!showSliceY)}
+                className={`px-3 py-1.5 rounded border transition-colors flex items-center gap-2 ${
+                  showSliceY
+                    ? 'bg-sky-950/40 border-sky-900/60 text-sky-300'
+                    : 'bg-surface-sunken border-border text-zinc-500'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${showSliceY ? 'bg-sky-400' : 'bg-zinc-600'}`} />
+                <span>PLANE y = y₀ (X-SLICE)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowSliceX(!showSliceX)}
+                className={`px-3 py-1.5 rounded border transition-colors flex items-center gap-2 ${
+                  showSliceX
+                    ? 'bg-amber-950/40 border-amber-900/60 text-amber-300'
+                    : 'bg-surface-sunken border-border text-zinc-500'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${showSliceX ? 'bg-amber-400' : 'bg-zinc-600'}`} />
+                <span>PLANE x = x₀ (Y-SLICE)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowTangentPlane(!showTangentPlane)}
+                className={`px-3 py-1.5 rounded border transition-colors flex items-center gap-2 ${
+                  showTangentPlane
+                    ? 'bg-zinc-800 border-zinc-700 text-zinc-200'
+                    : 'bg-surface-sunken border-border text-zinc-500'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${showTangentPlane ? 'bg-zinc-200' : 'bg-zinc-600'}`} />
+                <span>TANGENT PLANE</span>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* RIGHT: THE COMPUTATIONAL INSPECTOR & STEP-BY-STEP SOLVER (5 COLS from code.html) */}
+        {/* RIGHT COLUMN: HIGH-DENSITY DATA INSPECTOR TABLE (5 COLS) */}
         <div className="xl:col-span-5 space-y-4">
-          {/* Card 1: Active Formula & Mathematical Setup */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-label font-bold text-[#6d857d] uppercase tracking-wider">
-                Active Multivariable Function
+          {/* Table 1: First-Order Derivatives & Tangent Vectors */}
+          <div className="border border-border bg-surface rounded-md shadow-xs overflow-hidden">
+            <div className="px-3.5 py-2 border-b border-border bg-surface-sunken flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                FIRST-ORDER PARTIAL DERIVATIVES
               </span>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#182b24] text-secondary border border-primary/20">
-                ℝ² → ℝ
-              </span>
+              <span className="text-[10px] font-mono text-zinc-400">TABLE 01</span>
             </div>
-            <div className="p-3.5 bg-[#15221f] rounded-lg border border-[#23352f] flex items-center justify-between gap-2 overflow-x-auto">
-              <div className="font-mono text-base font-bold text-[#e2ece9]">
-                <MathTex tex={`f(x, y) = ${analysis.isValid ? analysis.latex.f : '\\text{Invalid}'}`} />
-              </div>
-              <button
-                onClick={copyLatexToClipboard}
-                className="text-[#6d857d] hover:text-primary transition-colors shrink-0"
-                title="Copy LaTeX"
-              >
-                <span className="material-symbols-outlined text-lg">content_copy</span>
-              </button>
-            </div>
-            <div className="text-xs text-[#9cb3ab] flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-primary">info</span>
-              <span>
-                Tangency Point: P(x₀ = {x0.toFixed(2)}, y₀ = {y0.toFixed(2)}) ⇒ z₀ = f({x0.toFixed(2)}, {y0.toFixed(2)}) ≈{' '}
-                <strong className="text-[#e2ece9]">{evalData.z.toFixed(2)}</strong>
-              </span>
-            </div>
-          </div>
 
-          {/* Card 2: First-Order Partial with respect to X */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-primary shadow-[0_0_8px_#52b788]" />
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-primary/20 border border-primary/40 text-primary text-xs font-bold rounded">
-                  Step 1
-                </span>
-                <h3 className="font-headline font-bold text-sm text-[#e2ece9]">
-                  First-Order Partial: ∂f/∂x
-                </h3>
+            <div className="divide-y divide-border text-xs font-mono">
+              {/* Row: ∂f/∂x */}
+              <div className="p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-1.5 py-0.5 rounded bg-sky-950/50 border border-sky-900/60 text-sky-400 font-bold text-[10px]">
+                      ∂f/∂x
+                    </span>
+                    <span className="text-zinc-200 font-semibold">Slope along X-Axis</span>
+                  </div>
+                  <span className="text-sky-400 font-bold text-sm">
+                    {evalData.fx >= 0 ? `+${evalData.fx.toFixed(3)}` : evalData.fx.toFixed(3)}
+                  </span>
+                </div>
+                <div className="bg-surface-sunken border border-border-subtle p-2 rounded text-zinc-300">
+                  <MathTex tex={`\\frac{\\partial f}{\\partial x} = ${analysis.isValid ? analysis.latex.fx : '0'}`} />
+                </div>
+                <div className="text-[11px] text-zinc-400 flex items-center justify-between">
+                  <span>Tangent Vector Tₓ:</span>
+                  <span className="text-zinc-200">⟨1.00, 0.00, {evalData.fx.toFixed(2)}⟩</span>
+                </div>
               </div>
-              <span className="text-xs font-mono font-bold text-primary">
-                Slope = {evalData.fx >= 0 ? `+${evalData.fx.toFixed(2)}` : evalData.fx.toFixed(2)}
-              </span>
-            </div>
-            <div className="p-3 bg-[#15221f] rounded-lg border border-[#23352f] font-mono text-xs text-[#e2ece9] space-y-1.5 overflow-x-auto">
-              <div className="text-[#9cb3ab] font-body">
-                Treat variable <strong className="text-tertiary font-semibold">y as a constant</strong>. Differentiate with respect to x:
-              </div>
-              <div className="font-bold text-primary text-sm">
-                <MathTex tex={`\\frac{\\partial f}{\\partial x} = ${analysis.isValid ? analysis.latex.fx : '0'}`} />
-              </div>
-            </div>
-            <div className="bg-[#0e1715] p-2.5 rounded-lg text-xs space-y-1 text-[#9cb3ab] font-mono border border-[#1b2a26]">
-              <div className="text-[11px] text-[#6d857d]">
-                Evaluation at P({x0.toFixed(2)}, {y0.toFixed(2)}):
-              </div>
-              <div>
-                fₓ({x0.toFixed(2)}, {y0.toFixed(2)}) ={' '}
-                <span className="font-bold text-primary">{evalData.fx.toFixed(4)}</span>
+
+              {/* Row: ∂f/∂y */}
+              <div className="p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-950/50 border border-amber-900/60 text-amber-400 font-bold text-[10px]">
+                      ∂f/∂y
+                    </span>
+                    <span className="text-zinc-200 font-semibold">Slope along Y-Axis</span>
+                  </div>
+                  <span className="text-amber-400 font-bold text-sm">
+                    {evalData.fy >= 0 ? `+${evalData.fy.toFixed(3)}` : evalData.fy.toFixed(3)}
+                  </span>
+                </div>
+                <div className="bg-surface-sunken border border-border-subtle p-2 rounded text-zinc-300">
+                  <MathTex tex={`\\frac{\\partial f}{\\partial y} = ${analysis.isValid ? analysis.latex.fy : '0'}`} />
+                </div>
+                <div className="text-[11px] text-zinc-400 flex items-center justify-between">
+                  <span>Tangent Vector Tᵧ:</span>
+                  <span className="text-zinc-200">⟨0.00, 1.00, {evalData.fy.toFixed(2)}⟩</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Card 3: First-Order Partial with respect to Y */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-tertiary shadow-[0_0_8px_#e7c268]" />
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-tertiary/20 border border-tertiary/40 text-tertiary text-xs font-bold rounded">
-                  Step 2
-                </span>
-                <h3 className="font-headline font-bold text-sm text-[#e2ece9]">
-                  First-Order Partial: ∂f/∂y
-                </h3>
-              </div>
-              <span className="text-xs font-mono font-bold text-tertiary">
-                Slope = {evalData.fy >= 0 ? `+${evalData.fy.toFixed(2)}` : evalData.fy.toFixed(2)}
+          {/* Table 2: Linear Tangent Plane Equation */}
+          <div className="border border-border bg-surface rounded-md shadow-xs p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              <span>LINEAR TANGENT PLANE EQUATION</span>
+              <span>DEGREE 1</span>
+            </div>
+            <div className="bg-surface-sunken border border-border-subtle p-2.5 rounded text-xs text-zinc-200 font-mono">
+              <MathTex
+                tex={`z - ${evalData.z.toFixed(2)} = (${evalData.fx.toFixed(2)})(x - ${x0.toFixed(2)}) + (${evalData.fy.toFixed(2)})(y - ${y0.toFixed(2)})`}
+                block
+              />
+            </div>
+            <div className="text-[11px] font-mono text-zinc-400 flex items-center justify-between pt-1 border-t border-border-subtle">
+              <span>Normal Vector n:</span>
+              <span className="text-zinc-200">
+                ⟨{evalData.fx.toFixed(2)}, {evalData.fy.toFixed(2)}, -1.00⟩
               </span>
-            </div>
-            <div className="p-3 bg-[#15221f] rounded-lg border border-[#23352f] font-mono text-xs text-[#e2ece9] space-y-1.5 overflow-x-auto">
-              <div className="text-[#9cb3ab] font-body">
-                Treat variable <strong className="text-primary font-semibold">x as a constant</strong>. Differentiate with respect to y:
-              </div>
-              <div className="font-bold text-tertiary text-sm">
-                <MathTex tex={`\\frac{\\partial f}{\\partial y} = ${analysis.isValid ? analysis.latex.fy : '0'}`} />
-              </div>
-            </div>
-            <div className="bg-[#0e1715] p-2.5 rounded-lg text-xs space-y-1 text-[#9cb3ab] font-mono border border-[#1b2a26]">
-              <div className="text-[11px] text-[#6d857d]">
-                Evaluation at P({x0.toFixed(2)}, {y0.toFixed(2)}):
-              </div>
-              <div>
-                fᵧ({x0.toFixed(2)}, {y0.toFixed(2)}) ={' '}
-                <span className="font-bold text-tertiary">{evalData.fy.toFixed(4)}</span>
-              </div>
             </div>
           </div>
 
-          {/* Card 4: Gradient Vector ∇f & Tangent Plane Equation */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-headline font-bold text-sm text-[#e2ece9] flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#4ade80] text-lg">north_east</span>
-                Gradient Vector &amp; Tangent Plane
-              </h3>
-              <span className="text-[11px] font-mono text-[#6d857d]">
-                ∇f({x0.toFixed(2)}, {y0.toFixed(2)})
-              </span>
+          {/* Table 3: Second-Order Curvatures & Hessian Test */}
+          <div className="border border-border bg-surface rounded-md shadow-xs p-3.5 space-y-3">
+            <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              <span>HESSIAN CURVATURE MATRIX</span>
+              <span>2ND DERIVATIVE</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#15221f] p-3 rounded-lg border border-[#23352f] space-y-1">
-                <span className="text-[11px] font-bold text-[#6d857d]">GRADIENT VECTOR</span>
-                <div className="font-mono text-xs text-[#e2ece9] font-semibold">
-                  ∇f = [{evalData.fx.toFixed(2)}, {evalData.fy.toFixed(2)}]ᵀ
-                </div>
-                <div className="text-[10px] text-[#9cb3ab]">
-                  ‖∇f‖ = <strong className="text-primary">{gradMag.toFixed(2)}</strong>
-                </div>
+            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                <span className="text-zinc-500 block text-[10px]">f_xx (X-CONCAVITY)</span>
+                <span className="text-zinc-100 font-bold">{evalData.fxx.toFixed(3)}</span>
               </div>
-
-              <div className="bg-[#15221f] p-3 rounded-lg border border-[#23352f] space-y-1">
-                <span className="text-[11px] font-bold text-[#6d857d]">MAX ASCENT ANGLE</span>
-                <div className="font-mono text-xs text-[#e2ece9] font-semibold">
-                  θ = atan2({evalData.fy.toFixed(1)}, {evalData.fx.toFixed(1)})
+              <div className="bg-surface-sunken border border-border-subtle p-2 rounded">
+                <span className="text-zinc-500 block text-[10px]">f_yy (Y-CONCAVITY)</span>
+                <span className="text-zinc-100 font-bold">{evalData.fyy.toFixed(3)}</span>
+              </div>
+              <div className="bg-surface-sunken border border-border-subtle p-2 rounded col-span-2 flex items-center justify-between">
+                <div>
+                  <span className="text-zinc-500 block text-[10px]">MIXED PARTIALS (CLAIRAUT)</span>
+                  <span className="text-zinc-100 font-bold">f_xy = f_yx = {evalData.fxy.toFixed(3)}</span>
                 </div>
-                <div className="text-[10px] text-[#9cb3ab]">
-                  Direction: <strong className="text-tertiary">{ascentAngleDeg.toFixed(1)}°</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 bg-[#182b24]/60 border border-primary/25 rounded-lg text-xs font-mono space-y-1 overflow-x-auto">
-              <div className="text-[11px] font-bold text-secondary">TANGENT PLANE EQUATION:</div>
-              <div className="text-[#e2ece9]">z - z₀ = f_x(x - x₀) + f_y(y - y₀)</div>
-              <div className="text-primary font-bold">
-                z - ({evalData.z.toFixed(2)}) = {evalData.fx.toFixed(2)}(x - {x0.toFixed(2)}) + ({evalData.fy.toFixed(2)})(y - {y0.toFixed(2)})
-              </div>
-            </div>
-          </div>
-
-          {/* Card 5: Clairaut's Theorem & Mixed Partials */}
-          <div className="bg-[#111b18] rounded-xl p-4 border border-[#23352f] shadow-lg shadow-black/20 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-base">sync_alt</span>
-                <h4 className="font-headline font-semibold text-xs text-[#e2ece9]">
-                  Clairaut&apos;s Theorem &amp; Mixed Partials
-                </h4>
-              </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/20 border border-primary/30 text-primary font-bold">
-                f_xy = f_yx
-              </span>
-            </div>
-            <div className="text-xs text-[#9cb3ab] font-mono p-2.5 bg-[#15221f] rounded-lg border border-[#23352f] space-y-1 overflow-x-auto">
-              <div>
-                ∂²f / (∂y∂x) ={' '}
-                <span className="font-bold text-[#e2ece9]">
-                  <MathTex tex={analysis.isValid ? analysis.latex.fxy : '0'} />
+                <span className="text-[10px] text-emerald-400 border border-emerald-900/50 bg-emerald-950/30 px-1.5 py-0.5 rounded">
+                  SYMMETRIC
                 </span>
               </div>
-              <div>
-                ∂²f / (∂x∂y) ={' '}
-                <span className="font-bold text-[#e2ece9]">
-                  <MathTex tex={analysis.isValid ? analysis.latex.fyx : '0'} />
-                </span>
-              </div>
-              <div className="pt-1 text-[11px] text-[#6d857d] font-body">
-                Both evaluate to <strong className="text-primary">{evalData.fxy.toFixed(3)}</strong> at P({x0.toFixed(2)}, {y0.toFixed(2)}).
-              </div>
+            </div>
+
+            <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-[11px] font-mono">
+              <span className="text-zinc-500">DISCRIMINANT D = f_xx·f_yy - (f_xy)²:</span>
+              <span className="text-zinc-200 font-bold">{D.toFixed(3)}</span>
+            </div>
+
+            <div className="text-[10px] font-mono text-zinc-400 bg-surface-sunken border border-border-subtle p-2 rounded flex items-center justify-between">
+              <span>POINT CLASSIFICATION:</span>
+              <span className="text-brand-text font-bold">{extremumClassification}</span>
             </div>
           </div>
         </div>
       </div>
-
-      {/* SECTION 3: BOTTOM REAL-WORLD APPLICATIONS & DEEP DIVES GRID (from code.html) */}
-      <section className="space-y-4 pt-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-headline text-xl font-bold text-[#e2ece9] tracking-tight">
-              Applied Multivariable Differentiation
-            </h2>
-            <p className="text-xs text-[#6d857d] mt-0.5">
-              Explore how holding variables constant powers modern algorithms, physics, and vector calculus.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Card A: Machine Learning & Gradient Descent */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 flex flex-col justify-between hover:border-primary/50 transition-colors">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-lg bg-[#182b24] border border-primary/30 text-primary flex items-center justify-center font-bold">
-                  <span className="material-symbols-outlined text-lg">smart_toy</span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#15221f] text-[#6d857d] border border-[#23352f]">
-                  Machine Learning
-                </span>
-              </div>
-              <div>
-                <h3 className="font-headline font-bold text-base text-[#e2ece9]">
-                  Backpropagation &amp; Loss Valley
-                </h3>
-                <p className="text-xs text-[#9cb3ab] mt-1 leading-relaxed">
-                  Each parameter weight updates along its negative partial derivative of the loss surface <MathTex tex="\mathcal{L}(w_1, w_2)" />.
-                </p>
-              </div>
-              <div className="p-2.5 bg-[#15221f] rounded-lg font-mono text-xs text-primary font-semibold border border-[#23352f]">
-                w_new = w_old - η · (∂L / ∂w)
-              </div>
-            </div>
-            <div className="pt-4 mt-3 border-t border-[#23352f] flex items-center justify-between text-xs">
-              <span className="text-[#6d857d]">Module 04.2</span>
-              <button
-                onClick={() => onExpressionChange('x^2 + y^2')}
-                className="text-primary font-semibold hover:underline flex items-center gap-1"
-              >
-                Load Loss Bowl
-                <span className="material-symbols-outlined text-sm">play_arrow</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card B: Physics & Heat Equation */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 flex flex-col justify-between hover:border-tertiary/50 transition-colors">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-lg bg-tertiary/15 border border-tertiary/30 text-tertiary flex items-center justify-center font-bold">
-                  <span className="material-symbols-outlined text-lg">thermostat</span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#15221f] text-[#6d857d] border border-[#23352f]">
-                  Thermodynamics
-                </span>
-              </div>
-              <div>
-                <h3 className="font-headline font-bold text-base text-[#e2ece9]">
-                  Fourier Heat Diffusion PDE
-                </h3>
-                <p className="text-xs text-[#9cb3ab] mt-1 leading-relaxed">
-                  Thermal conduction equates <MathTex tex="\partial u/\partial t" /> to the spatial Laplacian <MathTex tex="\nabla^2 u = u_{xx} + u_{yy}" />.
-                </p>
-              </div>
-              <div className="p-2.5 bg-[#15221f] rounded-lg font-mono text-xs text-tertiary font-semibold border border-[#23352f]">
-                ∂u/∂t = α (∂²u/∂x² + ∂²u/∂y²)
-              </div>
-            </div>
-            <div className="pt-4 mt-3 border-t border-[#23352f] flex items-center justify-between text-xs">
-              <span className="text-[#6d857d]">Module 06.1</span>
-              <button
-                onClick={() => onExpressionChange('3 * exp(-(x^2 + y^2)/3)')}
-                className="text-tertiary font-semibold hover:underline flex items-center gap-1"
-              >
-                Simulate Thermal Peak
-                <span className="material-symbols-outlined text-sm">play_arrow</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card C: Fluid Vorticity & Curl Vector Field */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 flex flex-col justify-between hover:border-secondary/50 transition-colors">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-lg bg-[#182b24] border border-[#23352f] text-secondary flex items-center justify-center font-bold">
-                  <span className="material-symbols-outlined text-lg">cyclone</span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#15221f] text-[#6d857d] border border-[#23352f]">
-                  Vector Calculus
-                </span>
-              </div>
-              <div>
-                <h3 className="font-headline font-bold text-base text-[#e2ece9]">
-                  Vorticity &amp; Curl (∇ × F)
-                </h3>
-                <p className="text-xs text-[#9cb3ab] mt-1 leading-relaxed">
-                  Cross-partial derivatives <MathTex tex="\partial Q/\partial x - \partial P/\partial y" /> quantify local rotation density in a fluid flow.
-                </p>
-              </div>
-              <div className="p-2.5 bg-[#15221f] rounded-lg font-mono text-xs text-[#e2ece9] font-semibold border border-[#23352f]">
-                curl F = ∇ × F = (∂R/∂y - ∂Q/∂z)î + ...
-              </div>
-            </div>
-            <div className="pt-4 mt-3 border-t border-[#23352f] flex items-center justify-between text-xs">
-              <span className="text-[#6d857d]">Module 08.3</span>
-              <button
-                onClick={() => onNavigateTab('curl')}
-                className="text-primary font-semibold hover:underline flex items-center gap-1"
-              >
-                Open Curl Solver
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

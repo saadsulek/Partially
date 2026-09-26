@@ -10,11 +10,11 @@ const SOLVER_EXAMPLES = [
 ];
 
 const DIFF_OPERATORS = [
-  { id: 'dx', tex: '\\frac{\\partial}{\\partial x}', short: '∂f/∂x' },
-  { id: 'dy', tex: '\\frac{\\partial}{\\partial y}', short: '∂f/∂y' },
-  { id: 'dxx', tex: '\\frac{\\partial^2}{\\partial x^2}', short: '∂²f/∂x²' },
-  { id: 'dyy', tex: '\\frac{\\partial^2}{\\partial y^2}', short: '∂²f/∂y²' },
-  { id: 'dxy', tex: '\\frac{\\partial^2}{\\partial x \\partial y}', short: '∂²f/∂x∂y' }
+  { id: 'dx', tex: '\\frac{\\partial}{\\partial x}', short: '∂f/∂x', desc: 'Hold y constant' },
+  { id: 'dy', tex: '\\frac{\\partial}{\\partial y}', short: '∂f/∂y', desc: 'Hold x constant' },
+  { id: 'dxx', tex: '\\frac{\\partial^2}{\\partial x^2}', short: '∂²f/∂x²', desc: 'Second x-derivative' },
+  { id: 'dyy', tex: '\\frac{\\partial^2}{\\partial y^2}', short: '∂²f/∂y²', desc: 'Second y-derivative' },
+  { id: 'dxy', tex: '\\frac{\\partial^2}{\\partial x \\partial y}', short: '∂²f/∂x∂y', desc: 'Mixed partial' }
 ];
 
 export default function DerivativeSolver({
@@ -44,159 +44,169 @@ export default function DerivativeSolver({
   }, [solverAnalysis, selectedOp, x0, y0]);
 
   return (
-    <section className="space-y-6">
-      {/* Workspace Header Card */}
-      <div className="bg-[#111b18] border border-[#23352f] rounded-xl p-5 shadow-lg shadow-black/20 space-y-4">
-        <div className="flex items-center gap-2 text-xs font-label text-[#6d857d]">
-          <span>Calculus III</span>
-          <span className="material-symbols-outlined text-sm">chevron_right</span>
-          <span>Step-by-Step Solver</span>
-          <span className="material-symbols-outlined text-sm">chevron_right</span>
-          <span className="text-primary font-semibold">Symbolic Partial Differentiation</span>
-        </div>
-
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <section className="space-y-4">
+      {/* Header & Function Input Utility Bar */}
+      <div className="border border-border bg-surface p-4 rounded-md shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/80">
           <div>
-            <h1 className="font-headline text-2xl font-bold text-[#e2ece9] tracking-tight">
-              Symbolic Partial Derivative Step Solver
+            <div className="text-[10px] font-mono tracking-wider uppercase text-zinc-500">
+              MODULE 02 // SYMBOLIC CALCULUS ENGINE
+            </div>
+            <h1 className="font-serif text-lg font-bold text-zinc-100 tracking-tight mt-0.5">
+              Step-by-Step Symbolic Differentiation Ledger
             </h1>
-            <p className="text-sm text-[#9cb3ab] mt-1">
-              Active independent variable highlighted in <span className="text-primary font-semibold">Spectral Mint (#52b788)</span>; held constant highlighted in <span className="text-tertiary font-semibold">Luminous Gold (#e7c268)</span>.
-            </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setSolverExpr(globalExpression)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#15221f] hover:bg-[#1b2824] text-[#e2ece9] border border-[#23352f] transition-colors"
+              className="px-2.5 py-1 text-xs font-mono bg-surface-sunken hover:bg-zinc-800 text-zinc-300 border border-border rounded transition-colors"
             >
-              Load 3D Surface
+              LOAD FROM 3D
             </button>
             {solverAnalysis.isValid && (
               <button
                 onClick={() => onSyncTo3D(solverExpr)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-primary text-[#003823] hover:bg-[#74c69d] shadow-[0_0_12px_rgba(82,183,136,0.3)] transition-all"
+                className="px-3 py-1 text-xs font-mono font-semibold bg-brand text-white hover:bg-brand-hover rounded transition-colors"
               >
-                <span className="material-symbols-outlined text-sm">view_in_ar</span>
-                Plot in 3D Visualizer
+                SYNC TO 3D
               </button>
             )}
           </div>
         </div>
 
-        {/* Input & Operator Row */}
-        <div className="pt-4 border-t border-[#23352f] grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-          <div className="lg:col-span-7 space-y-2">
-            <div className="relative flex items-center">
-              <span className="absolute left-3 font-mono text-xs font-bold text-primary">
-                f(x,y) =
-              </span>
-              <input
-                type="text"
-                value={solverExpr}
-                onChange={(e) => setSolverExpr(e.target.value)}
-                placeholder="x^3*y - 2*x*y^2 + sin(x)"
-                className="w-full pl-16 pr-3 py-2 rounded-lg font-mono text-xs bg-[#15221f] border border-[#23352f] text-[#e2ece9] focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
+        {/* Input Bar */}
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-brand-text shrink-0">f(x, y) =</span>
+          <input
+            type="text"
+            value={solverExpr}
+            onChange={(e) => setSolverExpr(e.target.value)}
+            placeholder="3*x^2*y^3 - 5*x*y + 4*y^2"
+            className="w-full bg-surface-sunken border border-border rounded px-3 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-brand"
+          />
+        </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] text-[#6d857d] font-bold uppercase tracking-wider mr-1">
-                Presets:
-              </span>
-              {SOLVER_EXAMPLES.map((ex) => (
-                <button
-                  key={ex.expr}
-                  onClick={() => setSolverExpr(ex.expr)}
-                  className={`px-2.5 py-1 rounded text-xs font-mono border transition-colors ${
-                    solverExpr === ex.expr
-                      ? 'bg-[#182b24] border-primary/40 text-primary font-semibold'
-                      : 'bg-[#15221f] border-[#23352f] text-[#9cb3ab] hover:text-[#e2ece9]'
-                  }`}
-                >
-                  {ex.label}
-                </button>
-              ))}
-            </div>
+        {/* Preset Quick Selectors */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border-subtle">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+            EXAMPLES:
+          </span>
+          {SOLVER_EXAMPLES.map((ex, i) => (
+            <button
+              key={i}
+              onClick={() => setSolverExpr(ex.expr)}
+              className="px-2 py-0.5 text-[11px] font-mono text-zinc-400 bg-surface-sunken hover:bg-zinc-800 hover:text-zinc-200 border border-border rounded transition-colors"
+            >
+              {ex.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Operator Segmented Toolbar & Telemetry */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left: Operator Selector (8 cols) */}
+        <div className="lg:col-span-8 border border-border bg-surface p-3.5 rounded-md shadow-xs space-y-2">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+            DIFFERENTIAL OPERATOR TARGET
           </div>
-
-          <div className="lg:col-span-5 grid grid-cols-5 gap-1.5">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {DIFF_OPERATORS.map((op) => {
-              const active = selectedOp === op.id;
+              const isSelected = selectedOp === op.id;
               return (
                 <button
                   key={op.id}
                   onClick={() => setSelectedOp(op.id)}
-                  className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg border transition-all ${
-                    active
-                      ? 'bg-[#182b24] border-primary text-primary shadow-[0_0_10px_rgba(82,183,136,0.2)] font-semibold'
-                      : 'bg-[#15221f] border-[#23352f] text-[#9cb3ab] hover:border-[#6d857d]'
+                  className={`p-2.5 rounded border text-left font-mono transition-colors flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-surface-raised border-brand text-zinc-100 ring-1 ring-brand'
+                      : 'bg-surface-sunken border-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
                   }`}
                 >
-                  <MathTex tex={op.tex} />
-                  <span className="text-[10px] font-mono mt-0.5">{op.short}</span>
+                  <span className="font-bold text-xs block mb-1">{op.short}</span>
+                  <span className="text-[10px] text-zinc-500 block leading-tight">{op.desc}</span>
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* Right: Numerical Evaluation at P0 (4 cols) */}
+        <div className="lg:col-span-4 border border-border bg-surface p-3.5 rounded-md shadow-xs flex flex-col justify-between space-y-2">
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-1 flex items-center justify-between">
+              <span>VALUE AT P₀({x0.toFixed(2)}, {y0.toFixed(2)})</span>
+              <span className="text-zinc-600">FLOAT64</span>
+            </div>
+            <div className="text-2xl font-mono font-bold text-zinc-100">
+              {numericAtPoint >= 0 ? `+${numericAtPoint.toFixed(4)}` : numericAtPoint.toFixed(4)}
+            </div>
+          </div>
+          <div className="pt-2 border-t border-border-subtle text-[11px] font-mono text-zinc-400">
+            Slope magnitude along chosen directional cut
+          </div>
+        </div>
       </div>
 
-      {/* 3-Step Derivation Cards */}
+      {/* Main Step-by-Step Derivation Breakdown */}
       {stepSolution && (
         <div className="space-y-4">
-          {/* Step 1 */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-primary shadow-[0_0_8px_#52b788]" />
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          {/* Step 1: Variable Identification */}
+          <div className="border border-border bg-surface rounded-md shadow-xs p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-border/80">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-primary/20 border border-primary/40 text-primary text-xs font-bold rounded">
-                  Step 1
+                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-surface-sunken border border-border rounded text-brand-text font-bold">
+                  STEP 01
                 </span>
-                <h3 className="font-headline font-bold text-base text-[#e2ece9]">
-                  Identify Independent Variable vs. Frozen Constant
+                <h3 className="font-serif text-sm font-semibold text-zinc-100">
+                  Identify Active Variable vs. Frozen Constant
                 </h3>
               </div>
 
               <div className="flex items-center gap-2 text-xs font-mono">
-                <span className="px-2.5 py-0.5 rounded bg-[#182b24] border border-primary/30 text-primary">
+                <span className="px-2 py-0.5 rounded border border-sky-900/60 bg-sky-950/30 text-sky-400">
                   Active: {stepSolution.activeVar}
                 </span>
-                <span className="px-2.5 py-0.5 rounded bg-[#4a3b10]/50 border border-tertiary/30 text-tertiary">
+                <span className="px-2 py-0.5 rounded border border-amber-900/60 bg-amber-950/30 text-amber-400">
                   Constant: {stepSolution.constVar}
                 </span>
               </div>
             </div>
 
             {stepSolution.isSecondOrder && (
-              <div className="p-3 rounded-lg bg-[#15221f] border border-[#23352f] text-xs text-[#9cb3ab]">
-                First-order intermediate derivative:{' '}
+              <div className="p-2.5 rounded bg-surface-sunken border border-border-subtle text-xs font-mono text-zinc-300">
+                Intermediate first-order derivative:{' '}
                 <MathTex tex={`${stepSolution.stage1Symbol} = ${stepSolution.stage1Tex}`} />
               </div>
             )}
 
-            <div className="p-4 rounded-lg bg-[#15221f] border border-[#23352f] overflow-x-auto">
+            <div className="p-3 bg-surface-sunken border border-border-subtle rounded overflow-x-auto text-xs font-mono text-zinc-100">
               <MathTex
-                tex={`\\frac{\\partial}{\\partial {\\textcolor{#52b788}{${stepSolution.activeVar}}}}\\Big[\\, ${stepSolution.coloredSourceTex} \\,\\Big]`}
+                tex={`\\frac{\\partial}{\\partial {\\textcolor{#38bdf8}{${stepSolution.activeVar}}}}\\Big[\\, ${stepSolution.coloredSourceTex} \\,\\Big]`}
                 block
               />
             </div>
           </div>
 
-          {/* Step 2 */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-[#23352f] shadow-lg shadow-black/20 space-y-4 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-tertiary shadow-[0_0_8px_#e7c268]" />
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 bg-tertiary/20 border border-tertiary/40 text-tertiary text-xs font-bold rounded">
-                Step 2
+          {/* Step 2: Term-by-Term Differentiation Table */}
+          <div className="border border-border bg-surface rounded-md shadow-xs overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-border bg-surface-sunken flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase px-1.5 py-0.5 bg-surface border border-border rounded text-brand-text font-bold">
+                  STEP 02
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+                  APPLY DIFFERENTIATION RULES TERM-BY-TERM
+                </span>
+              </div>
+              <span className="text-zinc-500">
+                {stepSolution.termSteps?.length || 0} ADDITIVE TERMS
               </span>
-              <h3 className="font-headline font-bold text-base text-[#e2ece9]">
-                Apply Differentiation Rules Term-by-Term
-              </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {stepSolution.termSteps.map((tStep) => {
+            <div className="divide-y divide-border">
+              {stepSolution.termSteps?.map((tStep) => {
                 const isZero = tStep.simplifiedDerivTex === '0';
                 const formattedResult = isZero
                   ? '0'
@@ -207,63 +217,104 @@ export default function DerivativeSolver({
                 return (
                   <div
                     key={tStep.index}
-                    className="rounded-lg border border-[#23352f] bg-[#15221f] p-3.5 space-y-2"
+                    className="p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 items-start hover:bg-surface-raised/40 transition-colors"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] font-mono font-semibold text-[#6d857d]">
-                        TERM #{tStep.index}
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#182b24] text-secondary border border-primary/20">
-                        {tStep.rule.ruleName}
-                      </span>
+                    <div className="lg:col-span-3 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono text-zinc-500">
+                          TERM {String(tStep.index).padStart(2, '0')}
+                        </span>
+                        <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-surface-sunken border border-border rounded text-brand-text">
+                          {tStep.rule?.ruleName || 'TRANSFORMATION'}
+                        </span>
+                      </div>
+                      <div className="text-[11px] font-mono text-zinc-400 leading-tight">
+                        {tStep.rule?.explanation}
+                      </div>
                     </div>
 
-                    <div className="p-2.5 rounded bg-[#0d1513] border border-[#23352f] flex items-center gap-2 flex-wrap overflow-x-auto text-sm">
+                    <div className="lg:col-span-9 bg-surface-sunken border border-border-subtle p-2.5 rounded overflow-x-auto text-xs font-mono text-zinc-100 flex items-center gap-3">
                       <MathTex
-                        tex={`\\frac{\\partial}{\\partial {\\textcolor{#52b788}{${stepSolution.activeVar}}}}\\left(${
+                        tex={`\\frac{\\partial}{\\partial {\\textcolor{#38bdf8}{${stepSolution.activeVar}}}}\\left(${
                           tStep.sign === '-' ? '-' : ''
                         }${tStep.originalColoredTex}\\right)`}
                       />
-                      <span className="material-symbols-outlined text-sm text-[#6d857d]">
-                        arrow_forward
-                      </span>
+                      <span className="text-zinc-500 font-bold">→</span>
                       <MathTex tex={formattedResult} />
                     </div>
-
-                    <p className="text-xs text-[#9cb3ab]">{tStep.rule.explanation}</p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Step 3 */}
-          <div className="bg-[#111b18] rounded-xl p-5 border border-primary/40 shadow-lg shadow-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-2 flex-1">
+          {/* Step 3: Final Simplified Symbolic Result */}
+          <div className="border border-border bg-surface p-4 rounded-md shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1.5 flex-1">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-primary text-[#003823] text-xs font-bold rounded">
-                  Step 3
+                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-brand text-white font-bold rounded">
+                  STEP 03
                 </span>
-                <h3 className="font-headline font-bold text-base text-[#e2ece9]">
+                <h3 className="font-serif text-sm font-semibold text-zinc-100">
                   Simplified Symbolic Derivative
                 </h3>
               </div>
-              <div className="p-3.5 rounded-lg bg-[#15221f] border border-[#23352f] overflow-x-auto">
+              <div className="p-3 rounded bg-surface-sunken border border-border-subtle overflow-x-auto text-sm font-mono text-zinc-100">
                 <MathTex tex={`${stepSolution.symbolTex} = ${stepSolution.finalTex}`} block />
               </div>
             </div>
 
-            <div className="sm:w-64 p-4 rounded-lg bg-[#15221f] border border-primary/30 shrink-0">
-              <div className="text-[11px] font-mono text-[#6d857d] uppercase">
-                Evaluated at P({x0.toFixed(2)}, {y0.toFixed(2)})
+            <div className="sm:w-60 p-3.5 rounded bg-surface-sunken border border-border shrink-0 font-mono">
+              <div className="text-[10px] uppercase text-zinc-500">
+                VALUE AT P₀({x0.toFixed(2)}, {y0.toFixed(2)})
               </div>
-              <div className="mt-1 font-mono text-2xl font-bold text-primary">
+              <div className="mt-1 text-2xl font-bold text-brand-text">
                 {numericAtPoint >= 0 ? `+${numericAtPoint.toFixed(4)}` : numericAtPoint.toFixed(4)}
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Second-Order Hessian Matrix Grid */}
+      <div className="border border-border bg-surface p-4 rounded-md shadow-xs space-y-3">
+        <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+          SECOND-ORDER MATRIX FORMULATION // HESSIAN H(f)
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
+          <div className="border border-border bg-surface-sunken p-3 rounded">
+            <span className="text-zinc-500 block text-[10px] uppercase">∂²f / ∂x²</span>
+            <div className="my-1.5 text-zinc-200 overflow-x-auto">
+              <MathTex tex={solverAnalysis.isValid ? solverAnalysis.latex.fxx : '0'} />
+            </div>
+            <span className="text-[10px] text-zinc-500">Pure X concavity</span>
+          </div>
+
+          <div className="border border-border bg-surface-sunken p-3 rounded">
+            <span className="text-zinc-500 block text-[10px] uppercase">∂²f / ∂y²</span>
+            <div className="my-1.5 text-zinc-200 overflow-x-auto">
+              <MathTex tex={solverAnalysis.isValid ? solverAnalysis.latex.fyy : '0'} />
+            </div>
+            <span className="text-[10px] text-zinc-500">Pure Y concavity</span>
+          </div>
+
+          <div className="border border-border bg-surface-sunken p-3 rounded">
+            <span className="text-zinc-500 block text-[10px] uppercase">∂²f / ∂y∂x</span>
+            <div className="my-1.5 text-zinc-200 overflow-x-auto">
+              <MathTex tex={solverAnalysis.isValid ? solverAnalysis.latex.fxy : '0'} />
+            </div>
+            <span className="text-[10px] text-emerald-400">Mixed cross-partial</span>
+          </div>
+
+          <div className="border border-border bg-surface-sunken p-3 rounded">
+            <span className="text-zinc-500 block text-[10px] uppercase">∂²f / ∂x∂y</span>
+            <div className="my-1.5 text-zinc-200 overflow-x-auto">
+              <MathTex tex={solverAnalysis.isValid ? solverAnalysis.latex.fyx : '0'} />
+            </div>
+            <span className="text-[10px] text-emerald-400">Identical (Clairaut)</span>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
