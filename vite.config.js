@@ -15,6 +15,7 @@ export default defineConfig({
           three: ['three'],
           math: ['mathjs', 'katex'],
           remotion: ['remotion', '@remotion/player'],
+          motion: ['framer-motion'],
         },
       },
     },

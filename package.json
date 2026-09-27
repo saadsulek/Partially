@@ -13,6 +13,7 @@
   "dependencies": {
     "@remotion/cli": "^4.0.242",
     "@remotion/player": "^4.0.242",
+    "framer-motion": "^13.4.4",
     "katex": "^0.16.11",
     "lucide-react": "^0.469.0",
     "mathjs": "^14.0.0",
